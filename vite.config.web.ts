@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import path from 'path'
-import dts from 'vite-plugin-dts'
-import { viteStaticCopy } from 'vite-plugin-static-copy'
+// import dts from 'vite-plugin-dts'
+// import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 const config = defineConfig({
     build: {
@@ -19,15 +19,15 @@ const config = defineConfig({
         jsx: 'automatic',
     },
     plugins: [
-        dts({ entryRoot: './src', outputDir: './dist/types' }),
-        viteStaticCopy({
-            targets: [
-                {
-                    src: 'src/*.scss',
-                    dest: './'
-                }
-            ]
-        }),
+        // dts({ entryRoot: './src', outputDir: './dist/types' }),
+        // viteStaticCopy({
+        //     targets: [
+        //         {
+        //             src: 'src/*.scss',
+        //             dest: './'
+        //         }
+        //     ]
+        // }),
     ],
     resolve: {
         alias: {
