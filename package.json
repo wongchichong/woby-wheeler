@@ -1,0 +1,33 @@
+{
+    "name": "voby-wheel-picker",
+    "version": "1.1.0",
+    "description": "仿 iOS UIPickerView 的滚动选择器",
+    "main": "./dist/WheelPicker.cjs.js",
+    "module": "./dist/WheelPicker.es.js",
+    "browser": "./dist/WheelPicker.umd.js",
+    "types": "./dist/types/WheelPicker.d.ts",
+    "sass": "./dist/WheelPicker.scss",
+    "keywords": [
+        "UIPickerView",
+        "滚动选择"
+    ],
+    "scripts": {
+        "build": "vite build",
+        "start": "vite --force --mode dev --host",
+        "build:web": "vite build --config vite.config.web.ts"
+    },
+    "author": "Cople",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/wongchichong/voby-wheel-picker"
+    },
+    "homepage": "https://github.com/wongchichong/voby-wheel-picker",
+    "devDependencies": {
+        "vite": "^4.3.3",
+        "voby": "workspace:../woby"
+    },
+    "dependencies": {
+        "firebase": "^9.21.0"
+    }
+}
