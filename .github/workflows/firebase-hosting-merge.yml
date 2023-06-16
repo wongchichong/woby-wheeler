@@ -12,8 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm install -g pnpm && pnpm install
+      - name: Install pnpm
+        run: npm install -g pnpm  pnpm install
+
+      - name: pnpm install
+        run: pnpm install
 
       - run: pnpm build:web
       - uses: FirebaseExtended/action-hosting-deploy@v0
