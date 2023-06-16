@@ -236,7 +236,6 @@ export const Wheel = (props: OptionType) => {
         if (deltaTime < $$(momentumThresholdTime) && distanceY <= 10 && (event.target as HTMLDivElement)?.classList.contains("wheelpicker-item")) {
             const aid = +(event.target as HTMLLinkElement)?.getAttribute('_wsidx')
 
-            console.log(aid, -$$(rowHeight), duration, easing)
             _scrollTo(aid * -$$(rowHeight), duration, easing)
             return false
         }
@@ -270,8 +269,6 @@ export const Wheel = (props: OptionType) => {
         const dt = data()
         const lis = []
         const items = []
-
-        console.log('build data', dt)
 
         items.push(...dt.map((item, idx) => {
             item = typeof item === "object" ? item : {

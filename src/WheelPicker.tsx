@@ -13,21 +13,23 @@ export type OptionType = {
     data?: (Observable<string[]> | Observable<Data[]>)[]
     hideOnBackdrop?: ObservableMaybe<boolean>
     disabled?: ObservableMaybe<boolean>
-    hidden?: ObservableMaybe<boolean>
     onShow?: () => void
     onCancel?: () => void
     value: Observable<string | Data>[]
     tempValue: Observable<string | Data>[]
     resetSelectedOnDataChanged?: ObservableMaybe<boolean>
+    displayElement?: ObservableMaybe<HTMLInputElement>
+    invokeElement?: ObservableMaybe<HTMLInputElement>
+    shown: Observable<boolean>
 }
 
 export const WheelPicker = (props: OptionType) => {
     const { data, rows = 5, rowHeight = 34,
-        onCancel, onShow, disabled, hidden,
-        value, tempValue, title, hideOnBackdrop, resetSelectedOnDataChanged
+        onCancel, onShow, disabled, shown,
+        value, tempValue, title, hideOnBackdrop, resetSelectedOnDataChanged,
+        displayElement, invokeElement
     } = props
 
-    const control = $<HTMLInputElement>()
     const closed = $<boolean>(true)
 
     const container = $<HTMLDivElement>()
@@ -59,13 +61,6 @@ export const WheelPicker = (props: OptionType) => {
     data.forEach((_, i) => {
         oriValue[i] = value[i]()
     })
-
-    const shown = $(false)
-
-    const _onFocus = (event: FocusEvent) => {
-        (event.target as HTMLDivElement).blur()
-        show()
-    }
 
     const _backdropTransEnd = () => {
         if (!shown()) {
@@ -100,18 +95,19 @@ export const WheelPicker = (props: OptionType) => {
         shown(false)
     }
 
-    const show = () => {
-        if ($$(disabled) || !closed()) return
+    useEffect(() => {
+        if (shown()) {
+            if ($$(disabled) || !closed()) return
 
-        let cont = container()
+            let cont = container()
 
-        closed(restore(false))
+            closed(restore(false))
 
-        cont.style.display = "block"
-        shown(true)
+            cont.style.display = "block"
 
-        onShow?.()
-    }
+            onShow?.()
+        }
+    })
 
     const width = useMemo(() => (100 / data.filter(f => !!f()).length) + '%')
     const ws = useMemo(() => data.map((v, i) => <Wheel
@@ -125,27 +121,23 @@ export const WheelPicker = (props: OptionType) => {
 
     const height = $$(rowHeight) * Math.floor($$(rows) / 2) - 1 + "px"
 
-    return <div readOnly className={['wheelpicker-control'/* , {'wheelpicker-hiddeninput':hiddenInput} */]} /* type={hiddenInput?'hidden':null} */ onFocus={_onFocus} onClick={_onFocus}>
-        {control() ?? <input type='text' disabled={disabled} hidden={hidden} value={() => tempValue.map(v => (v() as Data)?.value ?? v()) as any}></input>}
-        <div ref={container} className="wheelpicker" class={[{ 'shown': shown }]} /* style={{ display: () => shown() ? 'block' : 'none' }} */>
-            <div class='wheelpicker-backdrop' onTransitionEnd={_backdropTransEnd} onClick={$$(hideOnBackdrop) ? _cancel : null}></div>
-            <div class='wheelpicker-panel'>
-                <div class='wheelpicker-actions'>
-                    <button type='button' class='btn-cancel' onClick={_cancel}>取消</button>
-                    <button type='button' class='btn-set' onClick={() => _set()}>确定</button>
-                    <h4 class='wheelpicker-title'>{$$(title)}</h4>
+    return <div ref={container} className="wheelpicker" class={[{ 'shown': shown }]} /* style={{ display: () => shown() ? 'block' : 'none' }} */>
+        <div class='wheelpicker-backdrop' onTransitionEnd={_backdropTransEnd} onClick={$$(hideOnBackdrop) ? _cancel : null}></div>
+        <div class='wheelpicker-panel'>
+            <div class='wheelpicker-actions'>
+                <button type='button' class='btn-cancel' onClick={_cancel}>取消</button>
+                <button type='button' class='btn-set' onClick={() => _set()}>确定</button>
+                <h4 class='wheelpicker-title'>{$$(title)}</h4>
+            </div>
+            <div class='wheelpicker-main'>
+                <div class='wheelpicker-wheels'>
+                    {ws}
                 </div>
-                <div class='wheelpicker-main'>
-                    <div class='wheelpicker-wheels'>
-                        {ws}
-                    </div>
-                    <div class='wheelpicker-mask wheelpicker-mask-top' style={{ height }}></div>
-                    <div class='wheelpicker-mask wheelpicker-mask-current'></div>
-                    <div class='wheelpicker-mask wheelpicker-mask-btm' style={{ height }} ></div>
-                </div>
+                <div class='wheelpicker-mask wheelpicker-mask-top' style={{ height }}></div>
+                <div class='wheelpicker-mask wheelpicker-mask-current'></div>
+                <div class='wheelpicker-mask wheelpicker-mask-btm' style={{ height }} ></div>
             </div>
         </div>
     </div>
-
 }
 

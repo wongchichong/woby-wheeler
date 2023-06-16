@@ -49,11 +49,17 @@ const empty = []
 useEffect(() => { console.log('tempValue', tempValue[0](), tempValue[1](), tempValue[2]()) })
 useEffect(() => { console.log('dv', dv[0](), dv[1](), dv[2]()) })
 
+const sshown = $(false)
+const mshown = $(false)
+const cshown = $(false)
+
 render(<div>
     <h1>WheelPicker</h1>
     <p>仿 iOS UIPickerView 的滚动选择器</p>
     <h3>单列</h3>
 
+    <input value={() => sv.map(v => v().value ?? v())} onClick={() => sshown(true)} ></input>
+    <input value={() => stv.map(v => v()?.value ?? v())} onClick={() => sshown(true)} ></input>
     <WheelPickerV
         title={< h1 > 单列选择器 < button onClick={e => stv[0]('香蕉')} > 香蕉</button ></h1 >}
         data={fruits}
@@ -61,16 +67,22 @@ render(<div>
         tempValue={stv as any}
         rows={6}
         hideOnBackdrop
+        shown={sshown}
     />
 
     <h3><label for="demo2">两列带默认值</label></h3>
+    <input value={() => mv.map(v => v().value ?? v())} onClick={() => mshown(true)} ></input>
+    <input value={() => mtv.map(v => v()?.value ?? v())} onClick={() => mshown(true)} ></input>
     <WheelPickerV
         data={[frutiData, vegetableData]}
         value={mv}
         tempValue={mtv}
+        shown={mshown}
     />
 
     <h3><label for="demo3">城市联动</label></h3>
+    <input value={() => dv.map(v => v()?.value ?? v())} onClick={() => cshown(true)} ></input>
+    <input value={() => tempValue.map(v => v()?.value ?? v())} onClick={() => cshown(true)} ></input>
     <WheelPickerV hideOnBackdrop
         data={dt as any}
         value={dv}
@@ -83,9 +95,7 @@ render(<div>
         onCancel={() => {
             console.log("onCancel")
         }}
-        formatValue={value => {
-            return value.join(" ")
-        }}
+        shown={cshown}
     />
 
 </div >, document.getElementById('voby'))
