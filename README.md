@@ -4,7 +4,7 @@
 
 ## 演示
 
-[DEMO](http://cople.github.io/WheelPicker)
+[DEMO](https://github.com/wongchichong/voby-wheeler)
 
 ## 安装
 
@@ -335,8 +335,6 @@ render(<div class='m-5'>
 
 </div >, document.getElementById('voby'))
 
-
-
 ```
 
 ## 选项
@@ -354,39 +352,6 @@ render(<div class='m-5'>
 | rowHeight        | number   | 34                      | 行高                                       |
 | onShow           | function | null                    | 显示组件时触发                                  |
 | onCancel         | function | null                    | 点击取消时触发                                  |
-
-## 方法
-### picker.getValue([index:number])
-返回值数组或指定列的值
-
-### picker.setValue(value:array)
-### picker.setValue(value:string, index:number)
-设置各列的值或指定列的值
-
-### picker.getSelectedItems()
-返回选中的条目数组
-
-### picker.getData([index:nubmer])
-返回数据数组或指定列的数据
-
-### picker.setData(data:array [, value:array])
-### picker.setData(data:array, index:number [, value:string])
-设置各列或指定列的数据和值
-
-### picker.show()
-显示组件
-
-### picker.hide()
-隐藏组件
-
-### picker.enable()
-启用组件
-
-### picker.disable()
-禁用组件
-
-### picker.destory()
-销毁组件
 
 ## License
 
