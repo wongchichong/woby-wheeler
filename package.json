@@ -1,33 +1,43 @@
 {
-    "name": "voby-wheel-picker",
+    "name": "voby-wheeler",
     "version": "1.1.0",
     "description": "仿 iOS UIPickerView 的滚动选择器",
-    "main": "./dist/WheelPicker.cjs.js",
-    "module": "./dist/WheelPicker.es.js",
-    "browser": "./dist/WheelPicker.umd.js",
-    "types": "./dist/types/WheelPicker.d.ts",
+    "main": "./dist/index.cjs.js",
+    "module": "./dist/index.es.js",
+    "browser": "./dist/index.umd.js",
+    "types": "./dist/types/index.d.ts",
     "sass": "./dist/WheelPicker.scss",
     "keywords": [
         "UIPickerView",
         "滚动选择"
     ],
     "scripts": {
-        "build": "vite build",
-        "start": "vite --force --mode dev --host",
-        "build:web": "vite build --config vite.config.web.ts"
+        "css:watch": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
+        "css": "tailwindcss -i ./src/input.css -o ./dist/output.css",
+        "declaration": "tsc --build --force --declaration --emitDeclarationOnly --verbose",
+        "declaration:watch": "tsc --build --force --declaration --emitDeclarationOnly --verbose --watch",
+        "watch": "run-p build:watch css:watch",
+        "build": "run-s css build:vite css",
+        "build:web": "vite build --config=vite.config.web.ts --force --mode production",
+        "web": "vite preview --config=vite.config.web.ts --host",
+        "dev:only": "vite --config=vite.config.web.ts --force --mode dev --host",
+        "dev": "run-p css:watch dev:only",
+        "build:vite": "vite build",
+        "build:watch": "vite build --watch",
+        "preview": "vite preview --host",
+        "icon": "node ./node_modules/svg2tsx/cli/index.js"
     },
     "author": "Cople",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/wongchichong/voby-wheel-picker"
+        "url": "https://github.com/wongchichong/voby-wheeler"
     },
-    "homepage": "https://github.com/wongchichong/voby-wheel-picker",
+    "homepage": "https://github.com/wongchichong/voby-wheeler",
     "devDependencies": {
-        "vite": "^4.3.3",
+        "tailwindcss": "^3.3.3",
+        "vite": "^4.4.4",
         "voby": "workspace:../woby"
     },
-    "dependencies": {
-        "firebase": "^9.21.0"
-    }
+    "dependencies": {}
 }

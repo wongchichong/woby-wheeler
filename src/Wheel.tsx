@@ -1,18 +1,23 @@
 import * as utils from './utils'
-import { $, $$, Observable, ObservableReadonly, isObservable, store, useEffect, useMemo } from 'voby'
+import { $, $$, Observable, ObservableMaybe, ObservableReadonly, isObservable, store, useEffect, useMemo } from 'voby'
 
-export type OptionType = {
+export type WheelProps<T> = {
     rows: ObservableMaybe<number>
     rowHeight: ObservableMaybe<number>
     width: string | number | ObservableReadonly<string | number>
-    value: Observable<string | Data>
+    value: Observable<T>
+    valuer: (row: T) => any
+    renderer: (row: T) => any
+    checkboxer: (row: T) => Observable<boolean>
+    disabler: (row: T) => Observable<boolean>
     adjustTime?: ObservableMaybe<number>
     momentumThresholdTime?: ObservableMaybe<number>
     bounceTime?: ObservableMaybe<number>
     momentumThresholdDistance?: ObservableMaybe<number>
     resetSelectedOnDataChanged?: ObservableMaybe<boolean>
 
-    data: Observable<Data[]> | Observable<string[]>
+    data: Observable<T[]>
+    checkbox: ObservableMaybe<boolean>
     isTransition?: boolean
     isTouching?: boolean
     easings?: {
@@ -22,25 +27,29 @@ export type OptionType = {
     }
 }
 
-export type Data = {
-    value: number | string,
-    disabled?: boolean,
-    text: string
-}
+// export type Data = {
+//     value: number | string,
+//     disabled?: Observable<boolean>,
+//     text: string,
+//     checked: Observable<boolean>,
+
+//     valueOf: () => number | string
+//     toString: () => string
+// }
 
 export type ItemType = { classList: any }
 
 const isTouch = (e: TouchEvent | MouseEvent): e is TouchEvent =>
     !!(e as TouchEvent).touches
 
-export const Wheel = (props: OptionType) => {
+export const Wheel = <T,>(props: WheelProps<T>) => {
     const {
         data, rowHeight = 34, adjustTime = 400, bounceTime = 600, momentumThresholdTime = 300, momentumThresholdDistance = 10,
-        value, resetSelectedOnDataChanged = false, width
-    } = props
+        value, resetSelectedOnDataChanged = false, width,
+        checkbox, valuer, renderer = r => r, checkboxer = r => null, disabler = r => null } = props
     let { rows = 5 } = props
 
-    const _items = $<Data[]>([])
+    const _items = $<T[]>([])
     const list = $<(() => HTMLLinkElement)[]>([])
     const y = $(0)
     const selectedIndex = $(0)
@@ -68,7 +77,7 @@ export const Wheel = (props: OptionType) => {
     const startTime = $<number>()
 
     useEffect(() => {
-        data() // deps 
+        $$(data as any) // deps 
         if ($$(resetSelectedOnDataChanged))
             selectedIndex(0)
     })
@@ -124,15 +133,16 @@ export const Wheel = (props: OptionType) => {
         let index = Math.abs(Math.round(y / $$(rowHeight)))
 
         const items = _items()
-        if (!items[index]?.disabled) return y
+        // if (!items[index]?.disabled) return y
+        if (!$$(disabler(items[index]))) return y
 
         let max = Math.max(index, items.length - index)
         for (let i = 1; i <= max; i++) {
-            if (!items[index + i].disabled) {
+            if (!$$(disabler(items[index + i]))) {
                 index += i
                 break
             }
-            if (!items[index - i].disabled) {
+            if (!$$(disabler(items[index - i]))) {
                 index -= i
                 break
             }
@@ -162,13 +172,13 @@ export const Wheel = (props: OptionType) => {
             selectedIndex(newIndex)
 
             const v = _items()[selectedIndex()]
-            value(v)
+            value(valuer && v ? valuer(v) : v)
         }
     }
 
     useEffect(() => {
-        const v = (value() as Data)?.value ?? value() as string
-        const i = data().findIndex((vv, i) => (vv as Data).value === v || vv === v)
+        const v = $$(value)
+        const i = $$(data).findIndex((vv, i) => (valuer ? valuer(vv) : vv) === v)
         selectedIndex(i)
     })
 
@@ -266,25 +276,33 @@ export const Wheel = (props: OptionType) => {
 
     useEffect(() => {
 
-        const dt = data()
+        const dt = $$(data)
         const lis = []
         const items = []
 
-        items.push(...dt.map((item, idx) => {
-            item = typeof item === "object" ? item : {
-                text: item,
-                value: item
-            }
+        //@ts-ignore
+        items.push(...(dt).map((item, idx) => {
+            // item = typeof item === "object" ? item : {
+            //     text: item,
+            //     value: item,
+            //     checked: $(false),
+            //     valueOf: () => item.value ?? item,
+            //     toString: () => item.value ?? item
+            // } as Data
 
-            let li = () => <li class={['wheelpicker-item', {
-                //@ts-ignore
-                "wheelpicker-item-disabled": item.disabled,
-                "wheelpicker-item-selected": () => idx === selectedIndex()
-            }]}
+            let li = () => <li class={['wheelpicker-item',
+                `cursor-pointer h-[34px] leading-[34px] overflow-hidden text-center text-ellipsis whitespace-nowrap`
+                ,
+                () => $$(disabler(item)) ? "wheelpicker-item-disabled cursor-not-allowed pointer-events-none opacity-50" : '',
+                () => idx === selectedIndex() ? "wheelpicker-item-selected cursor-default" : '',
+            ]}
                 //@ts-ignore
                 _wsidx={idx}>
-                {(item as Data).text ?? item}
-            </li>
+                {$$(checkbox) ? <div class='w-[100px] mx-0 my-auto inline-block' onClick={() => checkboxer(item)?.(!$$(checkboxer(item)))}>
+                    <input class='float-left translate-y-[90%]' type='checkbox' checked={checkboxer(item)} /><span class='ml-4 '>{renderer(item)}</span></div> :
+                    renderer(item)
+                }
+            </li >
 
 
             lis.push(li)
@@ -299,7 +317,7 @@ export const Wheel = (props: OptionType) => {
 
         maxScrollY(-$$(rowHeight) * (dt.length - 1))
 
-        value(items[selectedIndex()])
+        value(valuer && items[selectedIndex()] ? valuer(items[selectedIndex()]) : items[selectedIndex()])
     })
 
 
@@ -321,12 +339,12 @@ export const Wheel = (props: OptionType) => {
         }
     }
 
-    return <div ref={wheel} class='wheelpicker-wheel' style={{ height: $$(rowHeight) * $$(rows) + "px", width }}
+    return <div ref={wheel} class='wheelpicker-wheel flex-[1_auto] relative overflow-hidden' style={{ height: $$(rowHeight) * $$(rows) + "px", width }}
         onTouchStart={_start} onTouchMove={_move} onTouchEnd={_end} onTouchCancel={_end}
         onMouseDown={_start} onMouseMove={_move} onMouseUp={_end} onMouseLeave={_end}
         onWheel={_wheel}
     >
-        <ul ref={scroller} class='wheelpicker-wheel-scroller' style={{ transform: () => "translate3d(0," + y() + "px,0)", marginTop: $$(rowHeight) * Math.floor($$(rows) / 2) + "px" }} onTransitionEnd={_transitionEnd}>
+        <ul ref={scroller} class='wheelpicker-wheel-scroller overflow-hidden list-none m-0 p-0' style={{ transform: () => "translate3d(0," + y() + "px,0)", marginTop: $$(rowHeight) * Math.floor($$(rows) / 2) + "px" }} onTransitionEnd={_transitionEnd}>
             {list}
         </ul>
     </div>

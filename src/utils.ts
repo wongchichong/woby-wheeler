@@ -1,3 +1,5 @@
+import { type JSX } from 'voby'
+
 export const extend = Object.assign
 //     || (<T extends {}, S extends {}>(target: T, source: S) => {
 //     for (var key in source) {
@@ -20,13 +22,10 @@ export const prefixed = (prop: string) => {
 
     return null
 }
-export const getStyle = (el: Element, prop: string) => {
+export const getStyle = (el: JSX.Element, prop: string) => {
     prop = prop.replace(/([A-Z])/g, "-$1")
     prop = prop.toLowerCase()
-    return window.getComputedStyle(el, null).getPropertyValue(prop)
+    return window.getComputedStyle(el as any, null).getPropertyValue(prop)
 }
 
-export const isArray = Array.isArray || ((obj: Function) => {
-    return Object.prototype.toString.call(obj) === "[object Array]"
-}
-)
+export const isArray = Array.isArray || ((obj: Function) => Object.prototype.toString.call(obj) === "[object Array]")

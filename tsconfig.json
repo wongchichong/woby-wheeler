@@ -6,12 +6,13 @@
         "allowUnusedLabels": false,
         "alwaysStrict": true,
         "declaration": true,
+        "declarationDir": "./dist/types",
         "disableSizeLimit": true,
         "esModuleInterop": false,
         "forceConsistentCasingInFileNames": true,
         // "importsNotUsedAsValues": "error",
         "inlineSourceMap": false,
-        "inlineSources": false,
+        "inlineSources": true,
         // "isolatedModules": true,
         "jsx": "react-jsx",
         "jsxImportSource": "voby",
@@ -32,7 +33,7 @@
         "pretty": true,
         "skipDefaultLibCheck": true,
         "skipLibCheck": true,
-        "sourceMap": false,
+        "sourceMap": true,
         "strict": true,
         "strictBindCallApply": true,
         "strictFunctionTypes": true,
@@ -48,9 +49,10 @@
             "types"
         ],
         // "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
-        "composite": true,
+        // "composite": true,
     },
     "exclude": [
+        "node_modules",
         "vite.config.ts",
         "dist*"
     ]
