@@ -5,7 +5,8 @@ import '../dist/output.css'
 import { Data } from './Data'
 
 import { Wheel } from './Wheel'
-import { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, useSuspended, type JSX } from 'voby'
+import { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, useSuspended, type JSX } from 'woby'
+
 
 
 export type WheelerProps<A = never, B = never, C = never, D = never, E = never, F = never, G = never, H = never> = {
@@ -159,7 +160,7 @@ export const Wheeler = <A = never, B = never, C = never, D = never, E = never, F
     const height = $$(rowHeight) * Math.floor($$(rows) / 2) - 1 + "px"
 
     return <div ref={container} className="wheelpicker fixed w-full h-full hidden z-[77] left-0 top-0" /* class={[{ 'shown': shown }]} */ /* style={{ display: () => shown() ? 'block' : 'none' }} */>
-        <div class={['wheelpicker-backdrop duration-[0.4s] h-full bg-[rgba(0,0,0,0.5)] opacity-0 [transform:translateZ(0)]', () => $$(open) ? 'opacity-100' : '']} onTransitionEnd={_backdropTransEnd} onClick={$$(hideOnBackdrop) ? _cancel : null}></div>
+        <div class={['wheelpicker-backdrop duration-[0.4s] h-full bg-[rgba(0,0,0,0.5)] opacity-0 [transform:translateZ(0)]', () => $$(open) ? 'opacity-100' : '']} onTransitionEnd={_backdropTransEnd} onClick={() => $$(hideOnBackdrop) ? _cancel() : null}></div>
         <div class={['wheelpicker-panel duration-[0.4s] absolute w-full bg-[#F7F7F7] text-base text-black select-none left-0 bottom-0 ',
             () => $$(open) ? '[transform:none]' : '[transform:translateY(100%)]'
         ]}
@@ -180,7 +181,7 @@ export const Wheeler = <A = never, B = never, C = never, D = never, E = never, F
                     {ws}
                 </div>
 
-                {$$(noMask) ? null : <>
+                {() => $$(noMask) ? null : <>
                     <div class='wheelpicker-mask absolute w-full pointer-events-none left-0 [transform:translateZ(0)] wheelpicker-mask-top h-3/6 top-0 [background:linear-gradient(to_bottom,#FFF,rgba(255,255,255,0.5)75%)]' style={{ height }}></div>
                     <div class='wheelpicker-mask absolute w-full pointer-events-none left-0 [transform:translateZ(0)] wheelpicker-mask-current h-[34px] mt-[-18px] border-y-[#C6C6C6] border-t border-solid border-b top-2/4'></div>
                     <div class='wheelpicker-mask absolute w-full pointer-events-none left-0 [transform:translateZ(0)] wheelpicker-mask-btm h-3/6 bottom-0 [background:linear-gradient(to_top,#FFF,rgba(255,255,255,0.5)75%)]' style={{ height }} ></div>

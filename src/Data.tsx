@@ -4,7 +4,8 @@
 import '../dist/output.css'
 
 import { Wheel } from './Wheel'
-import { $, $$, isObservable, ObservableMaybe, Observable, type JSX } from 'voby'
+import { $, $$, isObservable, ObservableMaybe, Observable, type JSX } from 'woby'
+
 type ObservableLike<T> = JSX.ObservableLike<T>
 
 type Primitive = string | number | boolean | null | undefined | symbol | bigint

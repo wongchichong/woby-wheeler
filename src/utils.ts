@@ -1,4 +1,4 @@
-import { type JSX } from 'voby'
+import { type JSX } from 'woby'
 
 export const extend = Object.assign
 //     || (<T extends {}, S extends {}>(target: T, source: S) => {

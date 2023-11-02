@@ -3,7 +3,8 @@
 import '../dist/output.css'
 
 import { Wheel } from './Wheel'
-import { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, useSuspended, type JSX } from 'voby'
+import { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, useSuspended, type JSX } from 'woby'
+
 import { Wheeler } from "./Wheeler"
 
 

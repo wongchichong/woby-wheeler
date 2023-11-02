@@ -1,5 +1,5 @@
 {
-    "name": "voby-wheeler",
+    "name": "woby-wheeler",
     "version": "1.1.0",
     "description": "仿 iOS UIPickerView 的滚动选择器",
     "main": "./dist/index.cjs.js",
@@ -31,13 +31,12 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/wongchichong/voby-wheeler"
+        "url": "https://github.com/wongchichong/woby-wheeler"
     },
-    "homepage": "https://github.com/wongchichong/voby-wheeler",
+    "homepage": "https://github.com/wongchichong/woby-wheeler",
     "devDependencies": {
         "tailwindcss": "^3.3.3",
-        "vite": "^4.4.4",
-        "voby": "workspace:../woby"
-    },
-    "dependencies": {}
+        "vite": "^4.4.11",
+        "woby": "workspace:../woby"
+    }
 }

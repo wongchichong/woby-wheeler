@@ -1,9 +1,11 @@
 import { Wheeler } from "./src/Wheeler"
-import { $, $$, Observable, render, useMemo, useEffect, ObservableMaybe, isObservable, type JSX } from 'voby'
+import { $, $$, Observable, render, useMemo, useEffect, ObservableMaybe, isObservable, type JSX } from 'woby'
+
 import data from './data.json'
-import { Data } from "src/Wheel"
+import { Data } from "./src/Data"
 import './dist/output.css'
 import { DateWheeler } from "./src/DateWheeler"
+import { useArrayWheeler } from "./src/useArrayWheeler"
 
 
 
@@ -197,6 +199,37 @@ const CheckChip = () => {
     </>
 }
 
+const SimpleCheckAllChip = () => {
+    const fruits = "*,西瓜,柠檬,草莓,荔枝,橘子,菠萝,香蕉,柚子,苹果,龙眼".split(",")
+    const sshown = $(false)
+
+    const options = useArrayWheeler(fruits, { all: '*' })
+    const { data, checked } = options
+    return <>
+        <h3><label for="demo2">Simple Checked with All *</label></h3>
+        <div class='w-full border h-[30px]' onClick={() => sshown(true)}>
+            {() => $$(data)[0].map((f, i) => i === 0 ? null : $$(checked[i]) ? <span className={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>{f}
+                {() => !$$(f.readonly) ? <CloseCircle
+                    className="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
+                    onClick={e => { e.cancelBubble = true; checked[i](false) }}
+                /> : null}
+            </span> : null)}
+        </div>
+        <Wheeler {...options}
+            // data={fruits}
+            // value={stv as any}
+            // // renderer={[r => r.text]}
+            // // valuer={[r => r.value]}
+            // checkboxer={[r => chk[0][fruits[0].indexOf(r)]]}
+            // rows={6}
+            // hideOnBackdrop
+            open={sshown}
+        // checkbox={[true]}
+        // noMask
+        />
+    </>
+}
+
 const cshown = $(false)
 const date = $(new Date())
 const format = (value: Observable<Data>[]) => value.slice(0, 3).map(v => $$(v) + '').join(' ') + ' ' + value.slice(3).map(v => ($$(v) + '').padStart(2, '0')).join(':')
@@ -230,6 +263,7 @@ render(<div class='m-5'>
     {v2}
     {v3}
     {CheckChip}
+    {SimpleCheckAllChip}
 
     <h3><label for="demo4">Date</label></h3>
     <div class='border m-5 w-[250px]' onClick={() => cshown(true)} >{() => $$(date).toString()} </div>
@@ -310,5 +344,5 @@ render(<div class='m-5'>
     <br />
 
 
-</div >, document.getElementById('voby'))
+</div >, document.getElementById('woby'))
 

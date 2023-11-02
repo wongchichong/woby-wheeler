@@ -15,7 +15,7 @@
         "inlineSources": true,
         // "isolatedModules": true,
         "jsx": "react-jsx",
-        "jsxImportSource": "voby",
+        "jsxImportSource": "woby",
         "lib": [
             "dom",
             "esnext",

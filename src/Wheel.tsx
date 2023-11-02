@@ -1,5 +1,5 @@
 import * as utils from './utils'
-import { $, $$, Observable, ObservableMaybe, ObservableReadonly, isObservable, store, useEffect, useMemo } from 'voby'
+import { $, $$, Observable, ObservableMaybe, ObservableReadonly, isObservable, store, useEffect, useMemo } from 'woby'
 
 export type WheelProps<T> = {
     rows: ObservableMaybe<number>
@@ -298,8 +298,8 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
             ]}
                 //@ts-ignore
                 _wsidx={idx}>
-                {$$(checkbox) ? <div class='w-[100px] mx-0 my-auto inline-block' onClick={() => checkboxer(item)?.(!$$(checkboxer(item)))}>
-                    <input class='float-left translate-y-[90%]' type='checkbox' checked={checkboxer(item)} /><span class='ml-4 '>{renderer(item)}</span></div> :
+                {() => $$(checkbox) ? <div class='w-[100px] mx-0 my-auto inline-block' onClick={() => checkboxer(item)?.(!$$(checkboxer(item)))}>
+                    <input class='float-left translate-y-[90%]' type='checkbox' checked={checkboxer(item)} indeterminate={() => typeof $$(checkboxer(item)) === 'undefined'} /><span class='ml-4 '>{renderer(item)}</span></div> :
                     renderer(item)
                 }
             </li >

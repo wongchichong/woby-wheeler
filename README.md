@@ -1,16 +1,24 @@
-# WheelPicker
+# Woby-Wheeler
+
+Ported from [WheelPicker](https://cople.github.io/WheelPicker/)
 
 仿 iOS UIPickerView 的滚动选择器
 
 ## 演示
 
-[DEMO](https://github.com/wongchichong/voby-wheeler)
+[DEMO](https://github.com/wongchichong/woby-wheeler)
+
+## Run Demo
+
+```
+pnpm dev
+```
 
 ## 安装
 
 ### NPM
 ```sh
-npm install wheel-picker --save
+npm install woby-wheeler --save
 ```
 
 ### CDN
@@ -21,8 +29,9 @@ npm install wheel-picker --save
 ## 使用
 
 ```ts
-import { Wheeler } from "./src/Wheeler"
-import { $, $$, Observable, render, useMemo, useEffect, ObservableMaybe, isObservable, type JSX } from 'voby'
+import { Wheeler } from "woby-wheeler"
+import { $, $$, Observable, render, useMemo, useEffect, ObservableMaybe, isObservable, type JSX } from "woby"
+
 import data from './data.json'
 import { Data } from "src/Wheel"
 import './dist/output.css'
@@ -333,7 +342,7 @@ render(<div class='m-5'>
     <br />
 
 
-</div >, document.getElementById('voby'))
+</div >, document.getElementById('woby'))
 
 ```
 
