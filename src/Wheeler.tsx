@@ -2,19 +2,20 @@
 
 //import './WheelPicker.scss'
 import '../dist/output.css'
-import { Data } from './Data'
+import { Data, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, } from './Data'
 
 import { Wheel } from './Wheel'
 import { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, useSuspended, type JSX } from 'woby'
-
 
 
 export type WheelerProps<A = never, B = never, C = never, D = never, E = never, F = never, G = never, H = never> = {
     title?: ObservableMaybe<JSX.Child>
     rows?: ObservableMaybe<number>
     rowHeight?: ObservableMaybe<number>
-    hideOnBackdrop?: ObservableMaybe<boolean>
+    hideOnBlur?: ObservableMaybe<boolean>
+    commitOnBlur?: ObservableMaybe<boolean>
     disabled?: ObservableMaybe<boolean>
+    onOk?: () => void
     onCancel?: () => void
     resetSelectedOnDataChanged?: ObservableMaybe<boolean>
     open: Observable<boolean>
@@ -23,23 +24,54 @@ export type WheelerProps<A = never, B = never, C = never, D = never, E = never, 
     checkbox?: ObservableMaybe<boolean>[]
     toolbar?: ObservableMaybe<boolean>
     noMask?: ObservableMaybe<boolean>
-} & Data<A, B, C, D, E, F, G, H>
+    commitOnOk?: ObservableMaybe<boolean>
+}
+// & (Data1<A> |
+// Data2<A, B> |
+// Data3<A, B, C> |
+// Data4<A, B, C, D> |
+// Data5<A, B, C, D, E> |
+// Data6<A, B, C, D, E, F> |
+// Data7<A, B, C, D, E, F, G> |
+// Data8<A, B, C, D, E, F, G, H>)
 
 
-export const Wheeler = <A = never, B = never, C = never, D = never, E = never, F = never, G = never, H = never>(props: WheelerProps<A, B, C, D, E, F, G, H>) => {
+// export function Wheeler<A>(props: WheelerProps & Data1<A>)
+// export function Wheeler<A, B>(props: WheelerProps & Data2<A, B>)
+// export function Wheeler<A, B, C>(props: WheelerProps & Data3<A, B, C>)
+// export function Wheeler<A, B, C, D>(props: WheelerProps & Data4<A, B, C, D>)
+// export function Wheeler<A, B, C, D, E>(props: WheelerProps & Data5<A, B, C, D, E>)
+// export function Wheeler<A, B, C, D, E, F>(props: WheelerProps & Data6<A, B, C, D, E, F>)
+// export function Wheeler<A, B, C, D, E, F, G>(props: WheelerProps & Data7<A, B, C, D, E, F, G>)
+// export function Wheeler<A, B, C, D, E, F, G, H>(props: WheelerProps & Data8<A, B, C, D, E, F, G, H>)
+// export function Wheeler<A, B, C, D, E, F, G, H>(props: WheelerProps & Data8<A, B, C, D, E, F, G, H>
+//     & (Data1<A>
+//         | Data2<A, B>
+//         | Data3<A, B, C>
+//         | Data4<A, B, C, D>
+//         | Data5<A, B, C, D, E>
+//         | Data6<A, B, C, D, E, F>
+//         | Data7<A, B, C, D, E, F, G>
+//         | Data8<A, B, C, D, E, F, G, H>)
+// )
+
+export function Wheeler<A>(props: WheelerProps & Data<A>) {
     const { data, rows = 5, rowHeight = 34,
-        onCancel, disabled, open = $(true),
-        value, title, hideOnBackdrop, resetSelectedOnDataChanged,
+        onCancel, onOk, disabled, open = $(true),
+        value: oValue, title, hideOnBlur, commitOnBlur, resetSelectedOnDataChanged,
         ok = "OK"/* "取消" */, cancel = "Cancel",//"确定"
-        headers, toolbar, noMask, valuer, renderer, checkboxer, checkbox, disabler
+        headers, toolbar, noMask, valuer, renderer, checkboxer, checkbox, commitOnOk = $(false),
+        //@ts-ignore
+        disabler
     } = props
 
+    const value = !$$(commitOnOk) ? oValue : oValue.map(v => $($$(v)))
     const closed = $<boolean>(true)
 
     const container = $<HTMLDivElement>()
     const restore = $<boolean>()
     const cancelled = $<boolean>()
-    const oriValue = value.map(v => v())
+    const oriValue = value.map(v => $$(v))
     const pdata = isObservable(data) ? data : $(data)
 
     // useEffect(() => console.log(props, value))
@@ -66,7 +98,7 @@ export const Wheeler = <A = never, B = never, C = never, D = never, E = never, F
             // tempValue[i](value[i]())
 
             if (!value[i]) value[i] = $($$(d[i])[0] as any)
-            if (!value[i]()) value[i]($$(d[i])[0] as any)
+            if (!$$(value[i])) value[i]($$(d[i])[0] as any)
             // tempValue[i](value[i]())
 
         })
@@ -80,14 +112,14 @@ export const Wheeler = <A = never, B = never, C = never, D = never, E = never, F
             // tempValue[i](value[i]())
 
             if (!value[i]) value[i] = $($$(d[i])[0] as any)
-            if (!value[i]()) value[i]($$(d[i])[0] as any)
+            if (!$$(value[i])) value[i]($$(d[i])?.[0] as any)
             // tempValue[i](value[i]())
         })
 
 
     })()
     $$(data).forEach((_, i) => {
-        oriValue[i] = value[i]()
+        oriValue[i] = $$(value[i])
     })
 
     const _backdropTransEnd = () => {
@@ -107,9 +139,14 @@ export const Wheeler = <A = never, B = never, C = never, D = never, E = never, F
                 // oriValue[i] = value[i]($$(tempValue[i]))
                 oriValue[i] = $$(value[i] as any)
 
+            if ($$(commitOnOk))
+                for (let i = 0; i < value.length; i++)
+                    oValue[i]($$(value[i]))
+
             // value.forEach((v, i) => oriValue[i] = v($$(tempValue[i])))
         })
 
+        onOk?.()
         open(false)
     }
 
@@ -132,9 +169,9 @@ export const Wheeler = <A = never, B = never, C = never, D = never, E = never, F
 
     useEffect(() => {
         if ($$(open)) {
-            if ($$(disabled) || !closed()) return
+            if ($$(disabled) || !closed() || !$$(container)) return
 
-            let cont = container()
+            let cont = $$(container)
 
             closed(restore(false))
 
@@ -159,8 +196,8 @@ export const Wheeler = <A = never, B = never, C = never, D = never, E = never, F
 
     const height = $$(rowHeight) * Math.floor($$(rows) / 2) - 1 + "px"
 
-    return <div ref={container} className="wheelpicker fixed w-full h-full hidden z-[77] left-0 top-0" /* class={[{ 'shown': shown }]} */ /* style={{ display: () => shown() ? 'block' : 'none' }} */>
-        <div class={['wheelpicker-backdrop duration-[0.4s] h-full bg-[rgba(0,0,0,0.5)] opacity-0 [transform:translateZ(0)]', () => $$(open) ? 'opacity-100' : '']} onTransitionEnd={_backdropTransEnd} onClick={() => $$(hideOnBackdrop) ? _cancel() : null}></div>
+    return <div ref={container} className="wheelpicker fixed w-full h-full hidden z-[77] left-0 top-0" onDblClick={() => _set()}>
+        <div class={['wheelpicker-backdrop duration-[0.4s] h-full bg-[rgba(0,0,0,0.5)] opacity-0 [transform:translateZ(0)]', () => $$(open) ? 'opacity-100' : '']} onTransitionEnd={_backdropTransEnd} onClick={() => $$(hideOnBlur) ? ($$(commitOnBlur) ? _set() : _cancel()) : null}></div>
         <div class={['wheelpicker-panel duration-[0.4s] absolute w-full bg-[#F7F7F7] text-base text-black select-none left-0 bottom-0 ',
             () => $$(open) ? '[transform:none]' : '[transform:translateY(100%)]'
         ]}
@@ -172,7 +209,7 @@ export const Wheeler = <A = never, B = never, C = never, D = never, E = never, F
                 <div class='wheelpicker-actions overflow-hidden border-b-[#C6C6C6] border-b border-solid'>
                     <button type='button' class='btn-cancel text-sm h-11 px-[1em] py-0 [border:none] [background:none] float-left font-bold' onClick={_cancel}>{cancel}</button>
                     <button type='button' class='btn-set text-sm h-11 px-[1em] py-0 [border:none] [background:none] float-right text-[#1078FC] font-bold' onClick={() => _set()}>{ok}</button>
-                    <h4 class='wheelpicker-title text-center text-[1em] leading-[44px] m-0'>{title}</h4>
+                    <h4 class='wheelpicker-title text-center text-[1em] m-0'>{title}</h4>
                 </div> : null}
 
             {() => !$$(headers) ? null : $$(headers).map(h => <div class='inline-block text-center font-bold' style={{ width }} >{h}</div>)}
@@ -188,7 +225,7 @@ export const Wheeler = <A = never, B = never, C = never, D = never, E = never, F
                 </>}
             </div>
         </div>
-    </div >
+    </div>
 }
 
 

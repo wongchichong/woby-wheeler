@@ -7,6 +7,7 @@ import { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, b
 
 import { Wheeler } from "./Wheeler"
 
+const currentYear = new Date(Date.now()).getFullYear()
 
 export type DateWheelerProps = {
     min?: ObservableMaybe<number>,
@@ -21,14 +22,26 @@ export type DateWheelerProps = {
     format?: (value: Observable<number | string>[]) => string
     value?: ObservableMaybe<Date | number[]>
     shown?: Observable<boolean>
-    title?: JSX.Child
+    title?: (d: Observable<Date>) => JSX.Child
+    commitOnOk?: ObservableMaybe<boolean>
+}
+
+const get = (d: Date) => {
+    const year = d.getFullYear()
+    const month = d.getMonth()
+    const day = d.getDate()
+    const hour = d.getHours()
+    const minute = d.getMinutes()
+    const second = d.getSeconds()
+
+    return { year, month, day, hour, minute, second }
 }
 export const DateWheeler = (props?: DateWheelerProps) => {
     const { max = 2101, min = 1900, hasYear = $(true), hasMonth = $(true), hasDay = $(true), hasHour, hasMinute, hasSecond,
-        format = (value: Observable<number | string>[]) => value.slice(0, 3).map(v => $$(v) + '').join(' ') + ' ' + value.slice(3).map(v => ($$(v) + '').padStart(2, '0')).join(':'),
+        // format = (value: Observable<number | string>[]) => value.slice(0, 3).map(v => $$(v) + '').join(' ') + ' ' + value.slice(3).map(v => ($$(v) + '').padStart(2, '0')).join(':'),
         headers = ['Year', 'Month', 'Day', 'Hour', 'Minute', 'Second'],
         shown = $(false),
-        title = <div class='font-bold' > {() => format(value as any)}</div >
+        title = (value: Observable<Date>) => <div class='font-bold' > {() => $$(value).toLocaleDateString()}</div>,
     } = props ?? {}
 
     const years = Array.from({ length: $$(max) - $$(min) }, (_, i) => $$(min) + i)
@@ -46,30 +59,52 @@ export const DateWheeler = (props?: DateWheelerProps) => {
         return Array.from({ length: daysInMonth }, (_, i) => i + 1)
     }
 
-    const date: Observable<Date> = (isObservable(props.value) ? props.value ?? new Date() : $(props.value ?? new Date())) as any
+    const oDate: Observable<Date> = (isObservable(props.value) ? props.value : $(props.value ?? new Date())) as any
+    const date: Observable<Date> = $($$(oDate))
+
+    useEffect(() => { date($$(oDate)) })
+
+    useEffect(() => { (!$$(date) || isNaN(+$$(date))) && date(new Date()) })
+        ; (!$$(date) || isNaN(+$$(date))) && date(new Date())
 
     const dt = useMemo(() => [
         $$(hasYear) ? $(years) : undefined, //state
         $$(hasMonth) ? $(Months) : undefined, //Object.keys(data[defaultProv]), //city
-        $$(hasDay) ? $(0) : undefined, //$(days(+$$(dv[0]), months.indexOf(($$(dv[1]) ?? 'January') + '')))//data[defaultProv][Object.keys(data[defaultProv])[0]] //district
+        $$(hasDay) ? $(days($$(date).getFullYear(), $$(date).getMonth())) : undefined, //$(days(+$$(dv[0]), months.indexOf(($$(dv[1]) ?? 'January') + '')))//data[defaultProv][Object.keys(data[defaultProv])[0]] //district
         $$(hasHour) || $$(hasMinute) || $$(hasSecond) ? $(Array.from({ length: 24 - 0 }, (_, i) => 0 + i)) : undefined,
         $$(hasMinute) || $$(hasSecond) ? $(Array.from({ length: 60 - 0 }, (_, i) => 0 + i)) : undefined,
         $$(hasSecond) ? $(Array.from({ length: 60 - 0 }, (_, i) => 0 + i)) : undefined,
-    ].filter(n => !!n) as [Observable<number[]>, Observable<string[]>, Observable<number[]>, Observable<number[]>?, Observable<number[]>?, Observable<number[]>?]
+    ].filter(n => !!n) as [Observable<number[]>?, Observable<string[]>?, Observable<number[]>?, Observable<number[]>?, Observable<number[]>?, Observable<number[]>?]
     )
 
-    const value: Observable<number | string>[] = $$(date) instanceof Date && $$(date) + '' !== 'Invalid Date' ?
-        [
-            $$(hasYear) ? $($$(date).getFullYear()) : undefined,
-            $$(hasMonth) ? $(Months[$$(date).getMonth()]) : undefined,
-            $$(hasDay) ? $($$(date).getDate()) : undefined,
-            $$(hasHour) || $$(hasMinute) || $$(hasSecond) ? $($$(date).getHours()) : undefined,
-            $$(hasMinute) || $$(hasSecond) ? $($$(date).getMinutes()) : undefined,
-            $$(hasSecond) ? $($$(date).getSeconds()) : undefined,
-        ].filter(n => typeof n !== 'undefined') as any
-        : isObservable(props.value) ? props.value : $(props.value)
+    const value/* :Observable<number|MT>[] */ = ((() => {
+        const { year, month, day, hour, minute, second } = get($$(date))
+        const [hY, hM, hD, hH, hm, hS] = [$$(hasYear), $$(hasMonth), $$(hasDay), $$(hasHour), $$(hasMinute), $$(hasSecond)]
 
+        return [
+            hY ? $(year) : undefined,
+            hM ? $(Months[month]) : undefined,
+            hD ? $(day) : undefined,
+            hH || hm || hS ? $(hour) : undefined,
+            hm || hS ? $(minute) : undefined,
+            hS ? $(second) : undefined,
+        ].filter(n => !!n) as [Observable<number>?, Observable<string>?, Observable<number>?, Observable<number>?, Observable<number>?, Observable<number>?]
+    }))()
 
+    useEffect(() => {
+        const { year, month, day, hour, minute, second } = get($$(date))
+        const [hY, hM, hD, hH, hm, hS] = [$$(hasYear), $$(hasMonth), $$(hasDay), $$(hasHour), $$(hasMinute), $$(hasSecond)]
+
+        let i = 0
+        hY && value[i++](year)
+        hM && value[i++](Months[month])
+        hD && value[i++](day);
+        (hH || hm || hS) && value[i++](hour);
+        (hm || hS) && value[i++](minute)
+        hS && value[i++](second)
+    })
+
+    //change date
     useEffect(() => {
         const l1 = $$(value[0])
         const l2 = $$(value[1])
@@ -87,19 +122,51 @@ export const DateWheeler = (props?: DateWheelerProps) => {
             }
     })
 
-    useEffect(() => {
-        const d = new Date(+$$(value[0]), Months.indexOf(($$(value[1]) + '') as any), + $$(value[2]), ($$(value[3]) as any) ?? 0, ($$(value[4]) as any) ?? 0, ($$(value[5]) as any) ?? 0)
-        if (d + '' === 'Invalid Date' || !($$(hasYear) && $$(hasMonth) && $$(hasDay)))
-            date([...value] as any)
+    const d = useMemo(() => {
+        const { year, month, day, hour, minute, second } = get($$(date))
+        let y: number, M: string, d: number, h: number, m: number, s: number
+
+        const [hY, hM, hD, hH, hm, hS] = [$$(hasYear), $$(hasMonth), $$(hasDay), $$(hasHour), $$(hasMinute), $$(hasSecond)]
+
+        let i = 0
+
+        if (hY) y = value[i++]() as any as number
+        if (hM) M = value[i++]() as any as string
+        if (hD) d = value[i++]() as number
+        if (hH || hm || hS) h = value[i++]() as number
+        if (hm || hS) m = value[i++]() as number
+        if (hS) s = value[i++]() as number
+
+        if (!(hY && year === y) || !(hM && Months[month] === (M ?? Months[0])) || !(hD && day === (d ?? 1)) || !(hH && hour === (h ?? 0)) || !(hm && minute === (m ?? 0)) || !(hS && second === (s ?? 0)))
+            return new Date(y ?? currentYear, M ? Months.indexOf(($$(value[1]) + '') as any) : 0, d ?? 1, h ?? 0, m ?? 0, s ?? 0)
         else
-            date(new Date(+$$(value[0]), Months.indexOf(($$(value[1]) + '') as any), + $$(value[2]), ($$(value[3]) as any) ?? 0, ($$(value[4]) as any) ?? 0, ($$(value[5]) as any) ?? 0))
+            return $$(date)
     })
+
+    //value to date
+    useEffect(() => {
+        // console.log('value to data', $$(date).toString(), $$(d).toString())
+        if (+$$(date) !== +$$(d))
+            date($$(d))
+        // if (d + '' === 'Invalid Date' || !($$(hasYear) && $$(hasMonth) && $$(hasDay)))
+        //     date([...value] as any)
+        // else
+        //     date(new Date(+$$(value[0]), Months.indexOf(($$(value[1]) + '') as any), + $$(value[2]), ($$(value[3]) as any) ?? 0, ($$(value[4]) as any) ?? 0, ($$(value[5]) as any) ?? 0))
+    })
+
+    const hd = (() => {
+        const [hY, hM, hD, hH, hm, hS] = [$$(hasYear), $$(hasMonth), $$(hasDay), $$(hasHour), $$(hasMinute), $$(hasSecond)]
+
+        if (headers.length === 6)
+            return [hY ? (headers[0]) : undefined, hM ? (headers[1]) : undefined, hD ? (headers[2]) : undefined, hH || hm || hS ? (headers[3]) : undefined, hm || hS ? (headers[4]) : undefined, hS ? (headers[5]) : undefined].filter(n => !!n)
+        return headers
+    })()
     return <Wheeler
         data={dt as any}
         value={value as any}
-        title={title}
-        headers={(() => headers.slice(0, $$(dt).length)) as any}
+        title={title(d)}
+        headers={hd}
         open={shown}
-        toolbar
+        toolbar onOk={() => oDate($$(date))}
     />
 }

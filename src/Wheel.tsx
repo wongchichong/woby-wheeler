@@ -321,22 +321,24 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
     })
 
 
-    const _wheel = () => {
+    const _wheel = (event: WheelEvent) => {
+        // event.stopPropagation()
+        event.preventDefault()
         let pid: number
         let pwid: number
-        wheel().onwheel = event => {
-            let duration = $$(adjustTime)
-            let easing = easings().scroll
+        // wheel().onwheel = event => {
+        let duration = $$(adjustTime)
+        let easing = easings().scroll
 
-            if (!event.target)
-                return
+        if (!event.target)
+            return
 
-            const aid = +(event.target as HTMLLinkElement)?.getAttribute('_wsidx')
+        const aid = +(event.target as HTMLLinkElement)?.getAttribute('_wsidx')
 
-            _scrollTo((pid = ((aid === pwid ? pid : aid) + Math.sign(event.deltaY))) * -$$(rowHeight), duration, easing)
+        _scrollTo((pid = ((aid === pwid ? pid : aid) + Math.sign(event.deltaY))) * -$$(rowHeight), duration, easing)
 
-            pwid = aid
-        }
+        pwid = aid
+        // }
     }
 
     return <div ref={wheel} class='wheelpicker-wheel flex-[1_auto] relative overflow-hidden' style={{ height: $$(rowHeight) * $$(rows) + "px", width }}

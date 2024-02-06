@@ -342,7 +342,7 @@ render(<div class='m-5'>
     <br />
 
 
-</div >, document.getElementById('woby'))
+</div>, document.getElementById('woby'))
 
 ```
 

@@ -1,12 +1,41 @@
 import { Wheeler } from "./src/Wheeler"
-import { $, $$, Observable, render, useMemo, useEffect, ObservableMaybe, isObservable, type JSX } from 'woby'
+import { $, $$, Observable, render, useMemo, useEffect, ObservableMaybe, isObservable, Portal, type JSX } from 'woby'
 
 import data from './data.json'
 import { Data } from "./src/Data"
 import './dist/output.css'
 import { DateWheeler } from "./src/DateWheeler"
 import { useArrayWheeler } from "./src/useArrayWheeler"
+import { useEnumData, useEnum } from "./src/useEnum"
 
+export enum VH {
+    Horizontal = 0,
+    Vertical = 1
+}
+
+export const AnySelect = <T,>(props: ReturnType<typeof useArrayWheeler<T>>) => {
+    const { data, checked, renderer, open, valuer, value } = props
+    useEffect(() => console.log($$(value[0])))
+    return <>
+        <h3><label for="demo2">Checked</label></h3>
+        <div class='w-full border h-[30px]' onClick={() => open(true)}>
+            {() => checked ? $$(data[0]).map((f, i) => $$(checked[i]) ? <span className={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>
+                {() => renderer[0]($$(f)) as any}
+                {() => //!$$((f).readonly) ?
+                    <CloseCircle
+                        className="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
+                        onClick={e => { e.preventDefault(); checked[i](false) }}
+                    /> //: null
+                }
+            </span> : null) :
+                renderer[0] ? renderer[0]($$(value[0])) : $$(value[0])
+            }
+        </div>
+        <Portal mount={document.body}>
+            <Wheeler {...props} open={open} hideOnBlur commitOnBlur /* open={open} checkboxer={checkboxer} checkbox={[!!all] } */ />
+        </Portal>
+    </>
+}
 
 
 const v1 = () => {
@@ -22,7 +51,7 @@ const v1 = () => {
             data={fruits}
             value={stv as any}
             rows={6}
-            hideOnBackdrop
+            hideOnBlur
             open={sshown}
             toolbar
         />
@@ -56,7 +85,7 @@ const v2 = () => {
         <input class='border m-5' value={() => mtv.map((v, i) => $$(v))} onClick={() => mshown(true)} ></input>
         <Wheeler
             data={[frutiData, vegetableData]}
-            value={mtv}
+            value={mtv as any}
             renderer={[r => r.text, r => r.text]}
             valuer={[r => r.value, r => r.value]}
             open={mshown}
@@ -82,7 +111,7 @@ const v3 = () => {
         $(keys[defaultProv][keys[defaultProv][0]])//data[defaultProv][Object.keys(data[defaultProv])[0]] //district
     ] as const
 
-    const value = [$<string | Data>(), $<string | Data>(), $<string | Data>()]
+    const value = [$<string /* | Data */>(), $<string /* | Data */>(), $<string /* | Data */>()]
 
     const empty = []
 
@@ -122,9 +151,9 @@ const v3 = () => {
         <input class='border m-5' value={() => value.map(v => v() + '')} onClick={() => cshown(true)} ></input>
         <Wheeler
             data={dt as any}
-            value={value}
+            value={value as any}
             resetSelectedOnDataChanged
-            hideOnBackdrop
+            hideOnBlur
             onShow={() => {
                 console.log("onShow")
             }}
@@ -163,10 +192,10 @@ const CheckChip = () => {
     let suspense = false
     useEffect(() => {
         if (!suspense)
-            $$(fruits[0]).forEach((r: Data) => r.checked($$(selectAll)))
+            $$(fruits[0]).forEach((r/* : Data */) => r.checked($$(selectAll)))
     })
     useEffect(() => {
-        if ($$(fruits[0]).some((r: Data) => !$$(r.checked) || r.text === '*')) {
+        if ($$(fruits[0]).some((r/* : Data */) => !$$(r.checked) || r.text === '*')) {
             suspense = true
             selectAll(false)
         }
@@ -191,7 +220,7 @@ const CheckChip = () => {
             valuer={[r => r.value]}
             checkboxer={[r => r.checked]}
             rows={6}
-            hideOnBackdrop
+            hideOnBlur
             open={sshown}
             checkbox={[$(true)]}
             noMask
@@ -208,11 +237,11 @@ const SimpleCheckAllChip = () => {
     return <>
         <h3><label for="demo2">Simple Checked with All *</label></h3>
         <div class='w-full border h-[30px]' onClick={() => sshown(true)}>
-            {() => $$(data)[0].map((f, i) => i === 0 ? null : $$(checked[i]) ? <span className={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>{f}
-                {() => !$$(f.readonly) ? <CloseCircle
+            {() => $$(data[0]).map((f, i) => i === 0 ? null : $$(checked[i]) ? <span className={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>{f}
+                {() => /* !$$(f.readonly) ? */ <CloseCircle
                     className="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
                     onClick={e => { e.cancelBubble = true; checked[i](false) }}
-                /> : null}
+                /> /* : null */}
             </span> : null)}
         </div>
         <Wheeler {...options}
@@ -232,7 +261,7 @@ const SimpleCheckAllChip = () => {
 
 const cshown = $(false)
 const date = $(new Date())
-const format = (value: Observable<Data>[]) => value.slice(0, 3).map(v => $$(v) + '').join(' ') + ' ' + value.slice(3).map(v => ($$(v) + '').padStart(2, '0')).join(':')
+const format = (value: Observable<any>[]) => value.slice(0, 3).map(v => $$(v) + '').join(' ') + ' ' + value.slice(3).map(v => ($$(v) + '').padStart(2, '0')).join(':')
 
 const cshownDateOnly = $(false)
 
@@ -254,10 +283,23 @@ const TimeIcon = (props: JSX.SVGAttributes<SVGElement>) => <svg xmlns="http://ww
     <path d="m612-292 56-56-148-148v-184h-80v216l172 172ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q133 0 226.5-93.5T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160Z" />
 </svg>
 
+const 横竖 = $(VH.Horizontal)
+
+
+export const CLS = {
+    Horizontal: { name: 'Horizontal', value: 1 },
+    Vertical: { name: 'Vertical', value: 2 }
+}
+
+const clsd = Object.values(CLS) //useEnumData(CLS).data
+const cv = $(clsd[0])
 render(<div class='m-5'>
     <h1>WheelPicker</h1>
     <p>仿 iOS UIPickerView 的滚动选择器</p>
     <h3>单列</h3>
+
+    <AnySelect value={[横竖 as any]} {...useEnum(useEnumData(VH))} />
+    {/* <AnySelect value={[cv as any]} data={[clsd]} open={$(false)} valuer={[r => r]} renderer={[r => r?.name]} />
 
     {v1}
     {v2}
@@ -341,8 +383,8 @@ render(<div class='m-5'>
     <br />
     <br />
     <br />
-    <br />
+    <br /> */}
 
 
-</div >, document.getElementById('woby'))
+</div>, document.getElementById('woby'))
 
