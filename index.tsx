@@ -1,5 +1,6 @@
 import { Wheeler } from "./src/Wheeler"
 import { $, $$, Observable, render, useMemo, useEffect, ObservableMaybe, isObservable, Portal, type JSX } from 'woby'
+import '../dist/output.css'
 
 import data from './data.json'
 import { Data } from "./src/Data"
@@ -13,7 +14,7 @@ export enum VH {
     Vertical = 1
 }
 
-export const AnySelect = <T,>(props: ReturnType<typeof useArrayWheeler<T>>) => {
+export const AnySelect = <T,>(props: Partial<ReturnType<typeof useArrayWheeler<T>>>) => {
     const { data, checked, renderer, open, valuer, value } = props
     useEffect(() => console.log($$(value[0])))
     return <>
@@ -32,6 +33,7 @@ export const AnySelect = <T,>(props: ReturnType<typeof useArrayWheeler<T>>) => {
             }
         </div>
         <Portal mount={document.body}>
+            {/** @ts-ignore  */}
             <Wheeler {...props} open={open} hideOnBlur commitOnBlur /* open={open} checkboxer={checkboxer} checkbox={[!!all] } */ />
         </Portal>
     </>

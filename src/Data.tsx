@@ -1,9 +1,9 @@
 "use strict"
 
 //import './WheelPicker.scss'
-import '../dist/output.css'
+// import '../dist/output.css'
 
-import { Wheel } from './Wheel'
+// import { Wheel } from './Wheel'
 import { $, $$, isObservable, ObservableMaybe, Observable, type JSX } from 'woby'
 
 // type ObservableMaybe<T> = JSX.ObservableMaybe<T>

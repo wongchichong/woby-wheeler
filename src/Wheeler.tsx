@@ -1,12 +1,13 @@
 "use strict"
 
 //import './WheelPicker.scss'
-import '../dist/output.css'
+//import '../dist/output.css'
 import { Data, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, } from './Data'
 
 import { Wheel } from './Wheel'
 import { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, useSuspended, type JSX } from 'woby'
-
+import { useWindowSize } from 'use-woby'
+import { useViewportSize } from 'use-woby'
 
 export type WheelerProps<A = never, B = never, C = never, D = never, E = never, F = never, G = never, H = never> = {
     title?: ObservableMaybe<JSX.Child>
@@ -195,11 +196,22 @@ export function Wheeler<A>(props: WheelerProps & Data<A>) {
     />))
 
     const height = $$(rowHeight) * Math.floor($$(rows) / 2) - 1 + "px"
+    const { width: w, height: h, offsetTop, offsetLeft } = useViewportSize()
 
-    return <div ref={container} className="wheelpicker fixed w-full h-full hidden z-[77] left-0 top-0" onDblClick={() => _set()}>
+    const s = useMemo(() => {
+        return {
+            height: $$(h),
+            width: $$(w),
+            top: $$(offsetTop),
+            left: $$(offsetLeft)
+        }
+    })
+
+    return <div ref={container} className="wheelpicker fixed w-full h-full hidden z-[77] left-0 top-0" style={s} onDblClick={() => _set()}>
         <div class={['wheelpicker-backdrop duration-[0.4s] h-full bg-[rgba(0,0,0,0.5)] opacity-0 [transform:translateZ(0)]', () => $$(open) ? 'opacity-100' : '']} onTransitionEnd={_backdropTransEnd} onClick={() => $$(hideOnBlur) ? ($$(commitOnBlur) ? _set() : _cancel()) : null}></div>
         <div class={['wheelpicker-panel duration-[0.4s] absolute w-full bg-[#F7F7F7] text-base text-black select-none left-0 bottom-0 ',
-            () => $$(open) ? '[transform:none]' : '[transform:translateY(100%)]'
+            () => $$(open) ? '[transform:none]' : '[transform:translateY(100%)]',
+            'absolute w-full z-[1000] p-2.5 bottom-0'
         ]}
             style={{
                 // transform: () => $$(shown) ? 'transform:none' : 'translate3d(0,100%,0)'
