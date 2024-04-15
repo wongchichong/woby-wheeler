@@ -9,7 +9,7 @@ const config = defineConfig({
         lib: {
             entry: ["./index.html"],
             name: "wheelpicker",
-            formats: ['cjs', 'es', 'umd'],
+            formats: [/*'cjs', '*/'es'/*, 'umd'*/],
             fileName: (format: string, entryName: string) => `${entryName}.${format}.js`
         },
         sourcemap: true,
@@ -19,7 +19,7 @@ const config = defineConfig({
         jsx: 'automatic',
     },
     plugins: [
-        // dts({ entryRoot: './src', outputDir: './dist/types' }),
+        // dts({ entryRoot: './src', outDir: './dist/types' }),
         // viteStaticCopy({
         //     targets: [
         //         {

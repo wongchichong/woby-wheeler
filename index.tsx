@@ -156,6 +156,7 @@ const v3 = () => {
             value={value as any}
             resetSelectedOnDataChanged
             hideOnBlur
+            /** @ts-ignore */
             onShow={() => {
                 console.log("onShow")
             }}
