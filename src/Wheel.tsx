@@ -1,5 +1,6 @@
 import * as utils from './utils'
 import { $, $$, Observable, ObservableMaybe, ObservableReadonly, isObservable, store, useEffect, useMemo } from 'woby'
+import { nanoid } from 'nanoid'
 
 export type WheelProps<T> = {
     rows: ObservableMaybe<number>
@@ -39,8 +40,7 @@ export type WheelProps<T> = {
 
 export type ItemType = { classList: any }
 
-const isTouch = (e: TouchEvent | MouseEvent): e is TouchEvent =>
-    !!(e as TouchEvent).touches
+const isTouch = (e: TouchEvent | PointerEvent): e is TouchEvent => 'touches' in e;
 
 export const Wheel = <T,>(props: WheelProps<T>) => {
     const {
@@ -187,7 +187,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
         return parseInt(matrixValues[matrixValues.length - 1])
     }
 
-    const _start = (event: TouchEvent | MouseEvent) => {
+    const _start = (event: PointerEvent) => {
         event.preventDefault()
 
         const items = _items()
@@ -207,7 +207,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
         isTouching(true)
     }
 
-    const _move = (event: TouchEvent | MouseEvent) => {
+    const _move = (event: PointerEvent) => {
         if (!isTouching()) return false
 
         let yy = isTouch(event) ? event.changedTouches[0].pageY : event.pageY
@@ -231,7 +231,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
         return false
     }
 
-    const _end = (event: MouseEvent | TouchEvent) => {
+    const _end = (event: PointerEvent) => {
         if (!isTouching()) return false
 
         const deltaTime = Date.now() - startTime()
@@ -244,7 +244,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
         isTouching(false)
 
         if (deltaTime < $$(momentumThresholdTime) && distanceY <= 10 && (event.target as HTMLDivElement)?.classList.contains("wheelpicker-item")) {
-            const aid = +(event.target as HTMLLinkElement)?.getAttribute('_wsidx')
+            const aid = +((event.target as HTMLLinkElement)?.getAttribute('_wsidx') ?? (event.target as HTMLLinkElement)?.parentElement?.getAttribute('_wsidx') ?? (event.target as HTMLLinkElement)?.parentElement?.parentElement?.getAttribute('_wsidx'))
 
             _scrollTo(aid * -$$(rowHeight), duration, easing)
             return false
@@ -290,6 +290,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
             //     toString: () => item.value ?? item
             // } as Data
 
+            const id = nanoid()
             let li = () => <li class={['wheelpicker-item',
                 `cursor-pointer h-[34px] leading-[34px] overflow-hidden text-center text-ellipsis whitespace-nowrap`
                 ,
@@ -298,8 +299,11 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
             ]}
                 //@ts-ignore
                 _wsidx={idx}>
-                {() => $$(checkbox) ? <div class='w-[100px] mx-0 my-auto inline-block' onClick={() => checkboxer(item)?.(!$$(checkboxer(item)))}>
-                    <input class='float-left translate-y-[90%]' type='checkbox' checked={checkboxer(item)} indeterminate={() => typeof $$(checkboxer(item)) === 'undefined'} /><span class='ml-4 '>{renderer(item)}</span></div> :
+                {() => $$(checkbox) ? <div class='w-[100px] mx-0 my-auto inline-block cursor-pointer'
+                    onClick={() => checkboxer(item)?.(!$$(checkboxer(item)))}>
+                    <input id={id} class='float-left translate-y-[90%]  cursor-pointer' type='checkbox' checked={checkboxer(item)} indeterminate={() => typeof $$(checkboxer(item)) === 'undefined'} />
+                    <label for={id} onClick={() => checkboxer(item)?.(!$$(checkboxer(item)))}><span class='ml-4  cursor-pointer'>{renderer(item)}</span></label>
+                </div> :
                     renderer(item)
                 }
             </li >
@@ -333,21 +337,27 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
         if (!event.target)
             return
 
-        const aid = +(event.target as HTMLLinkElement)?.getAttribute('_wsidx')
+        const aid = +((event.target as HTMLLinkElement)?.getAttribute('_wsidx') ??
+            (event.target as HTMLLinkElement).parentElement?.getAttribute('_wsidx') ??
+            (event.target as HTMLLinkElement)?.parentElement?.parentElement?.getAttribute('_wsidx') ??
+            (event.target as HTMLLinkElement)?.parentElement?.parentElement?.parentElement?.getAttribute('_wsidx'))
 
         _scrollTo((pid = ((aid === pwid ? pid : aid) + Math.sign(event.deltaY))) * -$$(rowHeight), duration, easing)
 
+        // console.log('_wheel', aid, pid)
         pwid = aid
         // }
     }
 
     return <div ref={wheel} class='wheelpicker-wheel flex-[1_auto] relative overflow-hidden' style={{ height: $$(rowHeight) * $$(rows) + "px", width }}
-        onTouchStart={_start} onTouchMove={_move} onTouchEnd={_end} onTouchCancel={_end}
-        onMouseDown={_start} onMouseMove={_move} onMouseUp={_end} onMouseLeave={_end}
+        onPointerDown={_start} onPointerMove={_move} onPointerUp={_end} onPointerCancel={_end}
+        // onMouseDown={_start} onMouseMove={_move} onMouseUp={_end} onMouseLeave={_end}
         onWheel={_wheel}
     >
-        <ul ref={scroller} class='wheelpicker-wheel-scroller overflow-hidden list-none m-0 p-0' style={{ transform: () => "translate3d(0," + y() + "px,0)", marginTop: $$(rowHeight) * Math.floor($$(rows) / 2) + "px" }} onTransitionEnd={_transitionEnd}>
+        <ul ref={scroller} class='wheelpicker-wheel-scroller overflow-hidden list-none m-0 p-0' style={{ transform: () => "translate3d(0," + y() + "px,0)", marginTop: $$(rowHeight) * Math.floor($$(rows) / 2) + "px" }}
+            onTransitionEnd={_transitionEnd} >
             {list}
         </ul>
     </div>
 }
+

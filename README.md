@@ -207,9 +207,9 @@ const CheckChip = () => {
     return <>
         <h3><label for="demo2">Checked</label></h3>
         <div class='w-full border h-[30px]' onClick={() => sshown(true)}>
-            {() => $$(fruits[0]).map(f => $$(f.checked) ? <span className={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>{f.text}
+            {() => $$(fruits[0]).map(f => $$(f.checked) ? <span class={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>{f.text}
                 {() => !$$(f.readonly) ? <CloseCircle
-                    className="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
+                    class="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
                     onClick={e => { e.cancelBubble = true; f.checked(false) }}
                 /> : null}
             </span> : null)}

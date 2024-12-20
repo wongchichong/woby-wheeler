@@ -92,7 +92,7 @@ export const DateWheeler = (props?: DateWheelerProps) => {
     }))()
 
     useEffect(() => {
-        const { year, month, day, hour, minute, second } = get($$(date))
+        const { year, month, day, hour, minute, second } = get($$(oDate))
         const [hY, hM, hD, hH, hm, hS] = [$$(hasYear), $$(hasMonth), $$(hasDay), $$(hasHour), $$(hasMinute), $$(hasSecond)]
 
         let i = 0
@@ -105,42 +105,45 @@ export const DateWheeler = (props?: DateWheelerProps) => {
     })
 
     //change date
-    useEffect(() => {
-        const l1 = $$(value[0])
-        const l2 = $$(value[1])
+    const d = useMemo(() => {
+        // const { year, month, day, hour, minute, second } = get($$(date))
+        const year = $$(value[0])
+        const month = $$(value[1])
+        const day = $$(value[2])
+        const hour = $$(value[3])
+        const minute = $$(value[4])
+        const second = $$(value[5])
 
         if ($$(hasDay))
             if ($$(hasMonth) && $$(hasYear)) {
-                const ds = days(+l1, Months.indexOf((l2 + '') as any))
+                const ds = days(+year, Months.indexOf((month + '') as any))
                 if ($$($$(dt)[2]).length !== ds.length)
                     $$(dt)[2](ds)
 
-                const l3 = $$(value[2])
+                const l3 = day
                 // const ds = $$(dt[2])
                 if (+l3 > ds.length)
                     value[2](ds[ds.length - 1])
             }
-    })
 
-    const d = useMemo(() => {
-        const { year, month, day, hour, minute, second } = get($$(date))
         let y: number, M: string, d: number, h: number, m: number, s: number
 
         const [hY, hM, hD, hH, hm, hS] = [$$(hasYear), $$(hasMonth), $$(hasDay), $$(hasHour), $$(hasMinute), $$(hasSecond)]
 
         let i = 0
 
-        if (hY) y = value[i++]() as any as number
-        if (hM) M = value[i++]() as any as string
-        if (hD) d = value[i++]() as number
-        if (hH || hm || hS) h = value[i++]() as number
-        if (hm || hS) m = value[i++]() as number
-        if (hS) s = value[i++]() as number
+        //value late
+        if (hY) y = year //value[i++]() as any as number
+        if (hM) M = month  //value[i++]() as any as string
+        if (hD) d = day //value[i++]() as number
+        if (hH || hm || hS) h = hour // value[i++]() as number
+        if (hm || hS) m = minute //value[i++]() as number
+        if (hS) s = second //value[i++]() as number
 
-        if (!(hY && year === y) || !(hM && Months[month] === (M ?? Months[0])) || !(hD && day === (d ?? 1)) || !(hH && hour === (h ?? 0)) || !(hm && minute === (m ?? 0)) || !(hS && second === (s ?? 0)))
+        //if (!(hY && year === y) || !(hM && Months[month] === (M ?? Months[0])) || !(hD && day === (d ?? 1)) || !(hH && hour === (h ?? 0)) || !(hm && minute === (m ?? 0)) || !(hS && second === (s ?? 0)))
             return new Date(y ?? currentYear, M ? Months.indexOf(($$(value[1]) + '') as any) : 0, d ?? 1, h ?? 0, m ?? 0, s ?? 0)
-        else
-            return $$(date)
+        // else
+        //     return $$(date)
     })
 
     //value to date

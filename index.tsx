@@ -1,6 +1,7 @@
+import * as React from "woby";
 import { Wheeler } from "./src/Wheeler"
 import { $, $$, Observable, render, useMemo, useEffect, ObservableMaybe, isObservable, Portal, type JSX } from 'woby'
-import '../dist/output.css'
+import './dist/output.css'
 
 import data from './data.json'
 import { Data } from "./src/Data"
@@ -15,21 +16,21 @@ export enum VH {
 }
 
 export const AnySelect = <T,>(props: Partial<ReturnType<typeof useArrayWheeler<T>>>) => {
-    const { data, checked, renderer, open, valuer, value } = props
-    useEffect(() => console.log($$(value[0])))
+    const { data = [[]], checked, renderer, open = $(false), valuer, value } = props
+    useEffect(() => console.log($$(value?.[0])))
     return <>
         <h3><label for="demo2">Checked</label></h3>
         <div class='w-full border h-[30px]' onClick={() => open(true)}>
-            {() => checked ? $$(data[0]).map((f, i) => $$(checked[i]) ? <span className={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>
-                {() => renderer[0]($$(f)) as any}
+            {() => checked ? $$(data?.[0]).map((f, i) => $$(checked[i]) ? <span class={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>
+                {() => renderer?.[0]($$(f)) as any}
                 {() => //!$$((f).readonly) ?
                     <CloseCircle
-                        className="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
+                        class="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
                         onClick={e => { e.preventDefault(); checked[i](false) }}
                     /> //: null
                 }
             </span> : null) :
-                renderer[0] ? renderer[0]($$(value[0])) : $$(value[0])
+                renderer?.[0] ? renderer[0]($$(value?.[0])) : $$(value?.[0])
             }
         </div>
         <Portal mount={document.body}>
@@ -174,11 +175,11 @@ const CloseCircle = (props: JSX.SVGAttributes<SVGElement>) => <svg xmlns="http:/
 </svg>
 
 const CheckChip = () => {
-
+    console.log('CheckChip')
     const selectAll = $(false)
     const fruits = [$([
         // { text: '*', value: '西瓜', checked: selectAll, readonly: $(false), valueOf: () => '*', toString: () => '*' },
-        { text: '西瓜...', value: '西瓜', checked: $(false), readonly: $(true) },
+        { text: '西瓜...', value: '西瓜', checked: $(true), readonly: $(true) },
         { text: '柠檬', value: '柠檬', checked: $(false), readonly: $(true) },
         { text: '...草莓', value: '草莓', checked: $(false), readonly: $(false) },
         { text: '荔枝', value: '荔枝', checked: $(false), readonly: $(false) },
@@ -193,10 +194,10 @@ const CheckChip = () => {
     const stv = [$(fruits[0][2])]
 
     let suspense = false
-    useEffect(() => {
-        if (!suspense)
-            $$(fruits[0]).forEach((r/* : Data */) => r.checked($$(selectAll)))
-    })
+    // useEffect(() => {
+    //     if (!suspense)
+    //         $$(fruits[0]).forEach((r/* : Data */) => r.checked($$(selectAll)))
+    // })
     useEffect(() => {
         if ($$(fruits[0]).some((r/* : Data */) => !$$(r.checked) || r.text === '*')) {
             suspense = true
@@ -206,15 +207,21 @@ const CheckChip = () => {
     })
     const sshown = $(false)
 
+    console.log('useEffect', $$(fruits[0])[0].text, $$($$(fruits[0])[0].checked))
+    useEffect(() => { console.log('useEffect', $$(fruits[0])[0].text, $$($$(fruits[0])[0].checked)) })
     return <>
-        <h3><label for="demo2">Checked</label></h3>
+        <h3><label for="demo2">CheckChip</label></h3>
         <div class='w-full border h-[30px]' onClick={() => sshown(true)}>
-            {() => $$(fruits[0]).map(f => $$(f.checked) ? <span className={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>{f.text}
-                {() => !$$(f.readonly) ? <CloseCircle
-                    className="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
-                    onClick={e => { e.cancelBubble = true; f.checked(false) }}
-                /> : null}
-            </span> : null)}
+            {() => $$(fruits[0]).map(f => $$(f.checked) ?
+                <span class={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>
+                    {f.text}
+                    {() => !$$(f.readonly) ? <CloseCircle
+                        class="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
+                        onClick={e => { e.cancelBubble = true; f.checked(false) }}
+                    /> : null}
+                </span>
+                : null
+            )}
         </div>
         <Wheeler
             data={fruits}
@@ -240,10 +247,10 @@ const SimpleCheckAllChip = () => {
     return <>
         <h3><label for="demo2">Simple Checked with All *</label></h3>
         <div class='w-full border h-[30px]' onClick={() => sshown(true)}>
-            {() => $$(data[0]).map((f, i) => i === 0 ? null : $$(checked[i]) ? <span className={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>{f}
+            {() => $$(data[0]).map((f, i) => i === 0 ? null : $$(checked?.[i]) ? <span class={[`bg-[#0096fb] inline-flex items-center text-[13px] leading-[19px] text-white whitespace-nowrap mr-[5px] px-2.5 py-1 rounded-[11px]`,]}>{f}
                 {() => /* !$$(f.readonly) ? */ <CloseCircle
-                    className="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
-                    onClick={e => { e.cancelBubble = true; checked[i](false) }}
+                    class="icon_cancel closeIcon h-[13px] w-[13px] float-right cursor-pointer ml-[5px] fill-[white]"
+                    onClick={e => { e.cancelBubble = true; checked?.[i](false) }}
                 /> /* : null */}
             </span> : null)}
         </div>
@@ -301,13 +308,13 @@ render(<div class='m-5'>
     <p>仿 iOS UIPickerView 的滚动选择器</p>
     <h3>单列</h3>
 
-    <AnySelect value={[横竖 as any]} {...useEnum(useEnumData(VH))} />
-    {/* <AnySelect value={[cv as any]} data={[clsd]} open={$(false)} valuer={[r => r]} renderer={[r => r?.name]} />
+    <AnySelect {...useEnum(useEnumData(VH))} value={[横竖 as any]} />
+    <AnySelect value={[cv as any]} data={[clsd]} open={$(false)} valuer={[r => r]} renderer={[r => r?.name]} />
 
     {v1}
     {v2}
     {v3}
-    {CheckChip}
+    <CheckChip />
     {SimpleCheckAllChip}
 
     <h3><label for="demo4">Date</label></h3>
@@ -386,7 +393,7 @@ render(<div class='m-5'>
     <br />
     <br />
     <br />
-    <br /> */}
+    <br />
 
 
 </div>, document.getElementById('woby'))
