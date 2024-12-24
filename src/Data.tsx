@@ -13,7 +13,7 @@ type Primitive = string | number | boolean | null | undefined | symbol | bigint
 export type Data<A> =
     {
         data?: ObservableMaybe<A[]>[]
-        headers?: ObservableMaybe<A>[]
+        headers?: ObservableMaybe<A>[] | ObservableMaybe<A[]>
         value: Observable<(A | Primitive)>[]
         renderer?: ((row: A) => JSX.Child)[]
         valuer?: ((row: A) => any)[]

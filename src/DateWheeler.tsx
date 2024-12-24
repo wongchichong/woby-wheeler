@@ -77,18 +77,18 @@ export const DateWheeler = (props?: DateWheelerProps) => {
     ].filter(n => !!n) as [Observable<number[]>?, Observable<string[]>?, Observable<number[]>?, Observable<number[]>?, Observable<number[]>?, Observable<number[]>?]
     )
 
-    const value/* :Observable<number|MT>[] */ = ((() => {
+    const value: [Observable<number>?, Observable<string>?, Observable<number>?, Observable<number>?, Observable<number>?, Observable<number>?] = ((() => {
         const { year, month, day, hour, minute, second } = get($$(date))
         const [hY, hM, hD, hH, hm, hS] = [$$(hasYear), $$(hasMonth), $$(hasDay), $$(hasHour), $$(hasMinute), $$(hasSecond)]
 
         return [
-            hY ? $(year) : undefined,
-            hM ? $(Months[month]) : undefined,
-            hD ? $(day) : undefined,
-            hH || hm || hS ? $(hour) : undefined,
-            hm || hS ? $(minute) : undefined,
-            hS ? $(second) : undefined,
-        ].filter(n => !!n) as [Observable<number>?, Observable<string>?, Observable<number>?, Observable<number>?, Observable<number>?, Observable<number>?]
+            $(hY ? year : undefined),
+            $<string>(hM ? Months[month] : undefined),
+            $(hD ? day : undefined),
+            $(hH || hm || hS ? hour : undefined),
+            $(hm || hS ? minute : undefined),
+            $(hS ? second : undefined),
+        ] //.filter(n => !!n) 
     }))()
 
     useEffect(() => {
@@ -96,13 +96,14 @@ export const DateWheeler = (props?: DateWheelerProps) => {
         const [hY, hM, hD, hH, hm, hS] = [$$(hasYear), $$(hasMonth), $$(hasDay), $$(hasHour), $$(hasMinute), $$(hasSecond)]
 
         let i = 0
-        hY && value[i++](year)
-        hM && value[i++](Months[month])
-        hD && value[i++](day);
-        (hH || hm || hS) && value[i++](hour);
-        (hm || hS) && value[i++](minute)
-        hS && value[i++](second)
+        /* hY && */ value[0](year)
+        /* hM && */ value[1](Months[month])
+        /* hD && */ value[2](day);
+        /* (hH || hm || hS) && */ value[3](hour);
+        /* (hm || hS) && */ value[4](minute)
+        /* hS &&  */value[5](second)
     })
+
 
     //change date
     const d = useMemo(() => {
@@ -141,7 +142,7 @@ export const DateWheeler = (props?: DateWheelerProps) => {
         if (hS) s = second //value[i++]() as number
 
         //if (!(hY && year === y) || !(hM && Months[month] === (M ?? Months[0])) || !(hD && day === (d ?? 1)) || !(hH && hour === (h ?? 0)) || !(hm && minute === (m ?? 0)) || !(hS && second === (s ?? 0)))
-            return new Date(y ?? currentYear, M ? Months.indexOf(($$(value[1]) + '') as any) : 0, d ?? 1, h ?? 0, m ?? 0, s ?? 0)
+        return new Date(y ?? currentYear, M ? Months.indexOf(($$(value[1]) + '') as any) : 0, d ?? 1, h ?? 0, m ?? 0, s ?? 0)
         // else
         //     return $$(date)
     })
@@ -157,19 +158,22 @@ export const DateWheeler = (props?: DateWheelerProps) => {
         //     date(new Date(+$$(value[0]), Months.indexOf(($$(value[1]) + '') as any), + $$(value[2]), ($$(value[3]) as any) ?? 0, ($$(value[4]) as any) ?? 0, ($$(value[5]) as any) ?? 0))
     })
 
-    const hd = (() => {
+    const hd = useMemo(() => {
         const [hY, hM, hD, hH, hm, hS] = [$$(hasYear), $$(hasMonth), $$(hasDay), $$(hasHour), $$(hasMinute), $$(hasSecond)]
 
-        if (headers.length === 6)
-            return [hY ? (headers[0]) : undefined, hM ? (headers[1]) : undefined, hD ? (headers[2]) : undefined, hH || hm || hS ? (headers[3]) : undefined, hm || hS ? (headers[4]) : undefined, hS ? (headers[5]) : undefined].filter(n => !!n)
-        return headers
-    })()
-    return <Wheeler
+        // if (headers.length === 6)
+        return [hY ? (headers[0]) : undefined, hM ? (headers[1]) : undefined, hD ? (headers[2]) : undefined, hH || hm || hS ? (headers[3]) : undefined, hm || hS ? (headers[4]) : undefined, hS ? (headers[5]) : undefined].filter(n => !!n)
+        // return headers
+    })
+
+    useEffect(() => console.log('hasSecond', $$(hasSecond)))
+
+    return () => $$(shown) ? <Wheeler
         data={dt as any}
         value={value as any}
         title={title(d)}
         headers={hd}
         open={shown}
         toolbar onOk={() => oDate($$(date))}
-    />
+    /> : null
 }

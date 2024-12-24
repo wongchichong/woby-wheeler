@@ -1,11 +1,9 @@
 "use strict"
 
-//import './WheelPicker.scss'
-//import '../dist/output.css'
 import { Data, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, } from './Data'
 
 import { Wheel } from './Wheel'
-import { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, useSuspended, type JSX } from 'woby'
+import React, { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, useSuspended, Fragment, type JSX } from 'woby'
 import { useWindowSize } from 'use-woby'
 import { useViewportSize } from 'use-woby'
 
@@ -206,6 +204,8 @@ export function Wheeler<A>(props: WheelerProps & Data<A>) {
             left: $$(offsetLeft)
         }
     })
+
+    useEffect(() => console.log('headers', $$(headers)))
 
     return () => !$$(open) ? null : <div ref={container} class="wheelpicker fixed w-full h-full hidden z-[77] left-0 top-0" style={s} onDblClick={() => _set()}>
         <div class={['wheelpicker-backdrop duration-[0.4s] h-full bg-[rgba(0,0,0,0.5)] opacity-0 [transform:translateZ(0)]', () => $$(open) ? 'opacity-100' : '']} onTransitionEnd={_backdropTransEnd} onClick={() => $$(hideOnBlur) ? ($$(commitOnBlur) ? _set() : _cancel()) : null}></div>
