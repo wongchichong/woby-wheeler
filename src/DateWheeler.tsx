@@ -166,8 +166,6 @@ export const DateWheeler = (props?: DateWheelerProps) => {
         // return headers
     })
 
-    useEffect(() => console.log('hasSecond', $$(hasSecond)))
-
     return () => $$(shown) ? <Wheeler
         data={dt as any}
         value={value as any}
