@@ -28,16 +28,6 @@ export type WheelProps<T> = {
     }
 }
 
-// export type Data = {
-//     value: number | string,
-//     disabled?: Observable<boolean>,
-//     text: string,
-//     checked: Observable<boolean>,
-
-//     valueOf: () => number | string
-//     toString: () => string
-// }
-
 export type ItemType = { classList: any }
 
 const isTouch = (e: TouchEvent | PointerEvent): e is TouchEvent => 'touches' in e;
@@ -323,7 +313,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
                 let li = () => <li class={['wheelpicker-item',
                     `cursor-pointer h-[34px] leading-[34px] overflow-hidden text-center text-ellipsis whitespace-nowrap`,
                     () => $$(disabler(item)) ? "wheelpicker-item-disabled cursor-not-allowed pointer-events-none opacity-50" : '',
-                    // () => idx === selectedIndex() ? "wheelpicker-item-selected cursor-default" : '',
+                    () => idx === $$(selectedIndex) ? "wheelpicker-item-selected cursor-default" : '',
                 ]}
                     //@ts-ignore
                     _wsidx={idx}>
