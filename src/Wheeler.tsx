@@ -23,6 +23,8 @@ export type WheelerProps<A = never, B = never, C = never, D = never, E = never, 
     toolbar?: ObservableMaybe<boolean>
     noMask?: ObservableMaybe<boolean>
     commitOnOk?: ObservableMaybe<boolean>
+    changeValueOnClickOnly? : ObservableMaybe<boolean>
+    inputClicked? : Observable<boolean>
 }
 // & (Data1<A> |
 // Data2<A, B> |
@@ -59,6 +61,7 @@ export function Wheeler<A>(props: WheelerProps & Data<A>) {
         value: oValue, title, hideOnBlur, commitOnBlur, resetSelectedOnDataChanged,
         ok = "OK"/* "取消" */, cancel = "Cancel",//"确定"
         headers, toolbar, noMask, valuer, renderer, checkboxer, checkbox, commitOnOk = $(false),
+        inputClicked, changeValueOnClickOnly,
         //@ts-ignore
         disabler
     } = props
@@ -184,6 +187,8 @@ export function Wheeler<A>(props: WheelerProps & Data<A>) {
         checkboxer={(checkboxer?.[i] ?? (r => null) as any)}
         checkbox={checkbox?.[i]}
         disabler={disabler?.[i] ?? (r => null) as any}
+        changeValueOnClickOnly={changeValueOnClickOnly}
+        inputClicked={inputClicked}
     />))
 
     const height = $$(rowHeight) * Math.floor($$(rows) / 2) - 1 + "px"

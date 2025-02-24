@@ -16,6 +16,9 @@ export type WheelProps<T> = {
     bounceTime?: ObservableMaybe<number>
     momentumThresholdDistance?: ObservableMaybe<number>
     resetSelectedOnDataChanged?: ObservableMaybe<boolean>
+    changeValueOnClickOnly: ObservableMaybe<boolean>
+    inputClicked: Observable<boolean>
+
 
     data: Observable<T[]>
     checkbox: ObservableMaybe<boolean>
@@ -35,7 +38,7 @@ const isTouch = (e: TouchEvent | PointerEvent): e is TouchEvent => 'touches' in 
 export const Wheel = <T,>(props: WheelProps<T>) => {
     const {
         data, rowHeight = 34, adjustTime = 400, bounceTime = 600, momentumThresholdTime = 300, momentumThresholdDistance = 10,
-        value, resetSelectedOnDataChanged = false, width,
+        value, resetSelectedOnDataChanged = false, width, changeValueOnClickOnly, inputClicked,
         checkbox, valuer, renderer = r => r, checkboxer = r => null, disabler = r => null } = props
     let { rows = 5 } = props
 
@@ -64,6 +67,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
     const startY = $<number>()
     const lastY = $<any>()
     const startTime = $<number>()
+    const eventSrc = $()
 
     useEffect(() => {
         if ($$(resetSelectedOnDataChanged) && $$(data)) {
@@ -84,6 +88,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
         selectedIndex(i)
     })
 
+    //Changes value of the value observable to based on the selected index
     useEffect(() => {
         const dt = $$(data)
 
@@ -91,7 +96,15 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
 
         maxScrollY(-$$(rowHeight) * (dt.length - 1))
 
-        value(valuer && $$(_items)[$$(selectedIndex)] ? valuer($$(_items)[$$(selectedIndex)]) : $$(_items)[$$(selectedIndex)])
+        if (changeValueOnClickOnly) {
+            if (!($$(eventSrc) instanceof WheelEvent)) {
+                value(valuer && $$(_items)[$$(selectedIndex)] ? valuer($$(_items)[$$(selectedIndex)]) : $$(_items)[$$(selectedIndex)])
+            }
+        }
+        else {
+            value(valuer && $$(_items)[$$(selectedIndex)] ? valuer($$(_items)[$$(selectedIndex)]) : $$(_items)[$$(selectedIndex)])
+        }
+
     })
 
     const _momentum = (current: number, start: number, time: number, lowerMargin: number, wheelSize: number, deceleration: number, rowHeight: number) => {
@@ -181,7 +194,18 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
             selectedIndex(newIndex)
 
             const v = $$(_items)[$$(selectedIndex)]
-            value(valuer && v ? valuer(v) : v)
+            if (changeValueOnClickOnly) {
+                if (!($$(eventSrc) instanceof WheelEvent)) {
+                    value(valuer && v ? valuer(v) : v)
+
+                    if (typeof $$(eventSrc) !== 'undefined') {
+                        inputClicked(false)
+                    }
+                }
+            }
+            else {
+                value(valuer && v ? valuer(v) : v)
+            }
         }
     }
 
@@ -204,6 +228,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
             $$(scroller).style["transform"] = "translate3d(0," + $$(y) + "px,0)"
         }
 
+        eventSrc(event)
         startY($$(y))
         lastY(isTouch(event) ? event.touches[0].pageY : event.pageY)
         startTime(Date.now())
@@ -287,6 +312,8 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
 
         if (!event.target)
             return
+
+        eventSrc(event)
 
         const aid = +((event.target as HTMLLinkElement)?.getAttribute('_wsidx') ??
             (event.target as HTMLLinkElement).parentElement?.getAttribute('_wsidx') ??
