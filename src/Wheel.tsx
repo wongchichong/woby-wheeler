@@ -16,6 +16,9 @@ export type WheelProps<T> = {
     bounceTime?: ObservableMaybe<number>
     momentumThresholdDistance?: ObservableMaybe<number>
     resetSelectedOnDataChanged?: ObservableMaybe<boolean>
+    changeValueOnClickOnly: ObservableMaybe<boolean>
+    inputClicked: Observable<boolean>
+
 
     data: Observable<T[]>
     checkbox: ObservableMaybe<boolean>
@@ -28,16 +31,6 @@ export type WheelProps<T> = {
     }
 }
 
-// export type Data = {
-//     value: number | string,
-//     disabled?: Observable<boolean>,
-//     text: string,
-//     checked: Observable<boolean>,
-
-//     valueOf: () => number | string
-//     toString: () => string
-// }
-
 export type ItemType = { classList: any }
 
 const isTouch = (e: TouchEvent | PointerEvent): e is TouchEvent => 'touches' in e;
@@ -45,12 +38,11 @@ const isTouch = (e: TouchEvent | PointerEvent): e is TouchEvent => 'touches' in 
 export const Wheel = <T,>(props: WheelProps<T>) => {
     const {
         data, rowHeight = 34, adjustTime = 400, bounceTime = 600, momentumThresholdTime = 300, momentumThresholdDistance = 10,
-        value, resetSelectedOnDataChanged = false, width,
+        value, resetSelectedOnDataChanged = false, width, changeValueOnClickOnly, inputClicked,
         checkbox, valuer, renderer = r => r, checkboxer = r => null, disabler = r => null } = props
     let { rows = 5 } = props
 
-    const _items = $<T[]>([])
-    const list = $<(() => HTMLLinkElement)[]>([])
+    const _items = $<T[]>($$(data).map((v) => v))
     const y = $(0)
     const selectedIndex = $(0)
     const isTransition = $(false)
@@ -75,14 +67,44 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
     const startY = $<number>()
     const lastY = $<any>()
     const startTime = $<number>()
+    const eventSrc = $()
 
     useEffect(() => {
-        $$(data as any) // deps 
-        if ($$(resetSelectedOnDataChanged))
+        if ($$(resetSelectedOnDataChanged) && $$(data)) {
             selectedIndex(0)
+        }
     })
+
     useEffect(() => {
-        if ($$(rows) % 2 === 0) isObservable(rows) ? rows(r => ++r) : (rows as number)++
+        if ($$(rows) % 2 === 0) {
+            isObservable(rows) ? rows(r => ++r) : (rows as number)++
+        }
+    })
+
+    useEffect(() => {
+        const v = $$(value)
+        const i = $$(data).findIndex((vv, i) => (valuer ? valuer(vv) : vv) === v)
+
+        selectedIndex(i)
+    })
+
+    //Changes value of the value observable to based on the selected index
+    useEffect(() => {
+        const dt = $$(data)
+
+        y($$(selectedIndex) * -$$(rowHeight))
+
+        maxScrollY(-$$(rowHeight) * (dt.length - 1))
+
+        if (changeValueOnClickOnly) {
+            if (!($$(eventSrc) instanceof WheelEvent)) {
+                value(valuer && $$(_items)[$$(selectedIndex)] ? valuer($$(_items)[$$(selectedIndex)]) : $$(_items)[$$(selectedIndex)])
+            }
+        }
+        else {
+            value(valuer && $$(_items)[$$(selectedIndex)] ? valuer($$(_items)[$$(selectedIndex)]) : $$(_items)[$$(selectedIndex)])
+        }
+
     })
 
     const _momentum = (current: number, start: number, time: number, lowerMargin: number, wheelSize: number, deceleration: number, rowHeight: number) => {
@@ -115,16 +137,16 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
     }
 
     const _resetPosition = (duration: number) => {
-        let yy = y()
+        let yy = $$(y)
 
         duration = duration || 0
 
         if (yy > 0) yy = 0
-        if (yy < maxScrollY()) yy = maxScrollY()
+        if (yy < $$(maxScrollY)) yy = $$(maxScrollY)
 
-        if (yy === y()) return false
+        if (yy === $$(y)) return false
 
-        _scrollTo(yy, duration, easings().bounce)
+        _scrollTo(yy, duration, $$(easings).bounce)
 
         return true
     }
@@ -132,8 +154,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
     const _getClosestSelectablePosition = (y: number) => {
         let index = Math.abs(Math.round(y / $$(rowHeight)))
 
-        const items = _items()
-        // if (!items[index]?.disabled) return y
+        const items = $$(_items)
         if (!$$(disabler(items[index]))) return y
 
         let max = Math.max(index, items.length - index)
@@ -151,7 +172,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
     }
 
     const _scrollTo = (yy: number, duration: number, easing: number | string) => {
-        if (y() === yy) {
+        if ($$(y) === yy) {
             _scrollFinish()
             return false
         }
@@ -160,47 +181,55 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
 
         if (duration && duration > 0) {
             isTransition(true)
-            scroller().style[transitionName()] = duration + "ms " + easing
+            $$(scroller).style[transitionName()] = duration + "ms " + easing
+            $$(scroller).style["transform"] = "translate3d(0," + $$(y) + "px,0)"
         } else {
             _scrollFinish()
         }
     }
 
     const _scrollFinish = () => {
-        let newIndex = Math.abs(y() / $$(rowHeight))
-        if (selectedIndex() != newIndex) {
+        let newIndex = Math.abs($$(y) / $$(rowHeight))
+        if ($$(selectedIndex) != newIndex) {
             selectedIndex(newIndex)
 
-            const v = _items()[selectedIndex()]
-            value(valuer && v ? valuer(v) : v)
+            const v = $$(_items)[$$(selectedIndex)]
+            if (changeValueOnClickOnly) {
+                if (!($$(eventSrc) instanceof WheelEvent)) {
+                    value(valuer && v ? valuer(v) : v)
+
+                    if (typeof $$(eventSrc) !== 'undefined') {
+                        inputClicked(false)
+                    }
+                }
+            }
+            else {
+                value(valuer && v ? valuer(v) : v)
+            }
         }
     }
 
-    useEffect(() => {
-        const v = $$(value)
-        const i = $$(data).findIndex((vv, i) => (valuer ? valuer(vv) : vv) === v)
-        selectedIndex(i)
-    })
-
     const _getCurrentY = () => {
-        const matrixValues = utils.getStyle(scroller(), transformName()).match(/-?\d+(\.\d+)?/g) as string[]
+        const matrixValues = utils.getStyle($$(scroller), $$(transformName)).match(/-?\d+(\.\d+)?/g) as string[]
         return parseInt(matrixValues[matrixValues.length - 1])
     }
 
     const _start = (event: PointerEvent) => {
         event.preventDefault()
 
-        const items = _items()
+        const items = $$(_items)
 
         if (!items.length) return
 
-        if (isTransition()) {
+        if ($$(isTransition)) {
             isTransition(false)
             y(_getCurrentY())
-            scroller().style[transitionName()] = ""
+            $$(scroller).style[$$(transitionName)] = ""
+            $$(scroller).style["transform"] = "translate3d(0," + $$(y) + "px,0)"
         }
 
-        startY(y())
+        eventSrc(event)
+        startY($$(y))
         lastY(isTouch(event) ? event.touches[0].pageY : event.pageY)
         startTime(Date.now())
 
@@ -208,36 +237,36 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
     }
 
     const _move = (event: PointerEvent) => {
-        if (!isTouching()) return false
+        if (!$$(isTouching)) return false
 
         let yy = isTouch(event) ? event.changedTouches[0].pageY : event.pageY
-        let deltaY = yy - lastY()
-        let targetY = y() + deltaY
+        let deltaY = yy - $$(lastY)
+        let targetY = $$(y) + deltaY
         let now = Date.now()
 
         lastY(yy)
 
-        if (targetY > 0 || targetY < maxScrollY()) {
-            targetY = y() + deltaY / 3
+        if (targetY > 0 || targetY < $$(maxScrollY)) {
+            targetY = $$(y) + deltaY / 3
         }
 
         y(Math.round(targetY))
 
-        if (now - startTime() > $$(momentumThresholdTime)) {
+        if (now - $$(startTime) > $$(momentumThresholdTime)) {
             startTime(now)
-            startY(y())
+            startY($$(y))
         }
 
         return false
     }
 
     const _end = (event: PointerEvent) => {
-        if (!isTouching()) return false
+        if (!$$(isTouching)) return false
 
-        const deltaTime = Date.now() - startTime()
+        const deltaTime = Date.now() - $$(startTime)
         let duration = $$(adjustTime)
-        let easing = easings().scroll
-        const distanceY = Math.abs(y() - startY())
+        let easing = $$(easings).scroll
+        const distanceY = Math.abs($$(y) - $$(startY))
         let momentumVals
         let yy
 
@@ -253,15 +282,15 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
         if (_resetPosition($$(bounceTime))) return
 
         if (deltaTime < $$(momentumThresholdTime) && distanceY > $$(momentumThresholdDistance)) {
-            momentumVals = _momentum(y(), startY(), deltaTime, maxScrollY(), wheelHeight(), 0.0007, $$(rowHeight))
+            momentumVals = _momentum($$(y), $$(startY), deltaTime, $$(maxScrollY), $$(wheelHeight), 0.0007, $$(rowHeight))
             yy = momentumVals.destination
             duration = momentumVals.duration
         } else {
-            yy = Math.round(y() / $$(rowHeight)) * $$(rowHeight)
+            yy = Math.round($$(y) / $$(rowHeight)) * $$(rowHeight)
         }
 
-        if (yy > 0 || yy < maxScrollY()) {
-            easing = easings().scrollBounce
+        if (yy > 0 || yy < $$(maxScrollY)) {
+            easing = $$(easings).scrollBounce
         }
 
         _scrollTo(yy, duration, easing)
@@ -269,73 +298,22 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
 
     const _transitionEnd = () => {
         isTransition(false)
-        scroller().style[transitionName()] = ""
+        $$(scroller).style[$$(transitionName)] = ""
 
         if (!_resetPosition($$(bounceTime))) _scrollFinish()
     }
 
-    useEffect(() => {
-
-        const dt = $$(data)
-        const lis = []
-        const items = []
-
-        //@ts-ignore
-        items.push(...(dt).map((item, idx) => {
-            // item = typeof item === "object" ? item : {
-            //     text: item,
-            //     value: item,
-            //     checked: $(false),
-            //     valueOf: () => item.value ?? item,
-            //     toString: () => item.value ?? item
-            // } as Data
-
-            const id = nanoid()
-            let li = () => <li class={['wheelpicker-item',
-                `cursor-pointer h-[34px] leading-[34px] overflow-hidden text-center text-ellipsis whitespace-nowrap`
-                ,
-                () => $$(disabler(item)) ? "wheelpicker-item-disabled cursor-not-allowed pointer-events-none opacity-50" : '',
-                () => idx === selectedIndex() ? "wheelpicker-item-selected cursor-default" : '',
-            ]}
-                //@ts-ignore
-                _wsidx={idx}>
-                {() => $$(checkbox) ? <div class='w-[100px] mx-0 my-auto inline-block cursor-pointer'
-                    onClick={() => checkboxer(item)?.(!$$(checkboxer(item)))}>
-                    <input id={id} class='float-left translate-y-[90%]  cursor-pointer' type='checkbox' checked={checkboxer(item)} indeterminate={() => typeof $$(checkboxer(item)) === 'undefined'} />
-                    <label for={id} onClick={() => checkboxer(item)?.(!$$(checkboxer(item)))}><span class='ml-4  cursor-pointer'>{renderer(item)}</span></label>
-                </div> :
-                    renderer(item)
-                }
-            </li >
-
-
-            lis.push(li)
-            return item
-        }))
-
-        list(lis)
-        _items(items)
-
-
-        y(selectedIndex() * -$$(rowHeight))
-
-        maxScrollY(-$$(rowHeight) * (dt.length - 1))
-
-        value(valuer && items[selectedIndex()] ? valuer(items[selectedIndex()]) : items[selectedIndex()])
-    })
-
-
     const _wheel = (event: WheelEvent) => {
-        // event.stopPropagation()
         event.preventDefault()
         let pid: number
         let pwid: number
-        // wheel().onwheel = event => {
         let duration = $$(adjustTime)
-        let easing = easings().scroll
+        let easing = $$(easings).scroll
 
         if (!event.target)
             return
+
+        eventSrc(event)
 
         const aid = +((event.target as HTMLLinkElement)?.getAttribute('_wsidx') ??
             (event.target as HTMLLinkElement).parentElement?.getAttribute('_wsidx') ??
@@ -344,19 +322,39 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
 
         _scrollTo((pid = ((aid === pwid ? pid : aid) + Math.sign(event.deltaY))) * -$$(rowHeight), duration, easing)
 
-        // console.log('_wheel', aid, pid)
         pwid = aid
-        // }
     }
 
-    return <div ref={wheel} class='wheelpicker-wheel flex-[1_auto] relative overflow-hidden' style={{ height: $$(rowHeight) * $$(rows) + "px", width }}
+    return <div ref={wheel} class='wheelpicker-wheel flex-[1_auto] relative overflow-hidden'
+        style={{ height: $$(rowHeight) * $$(rows) + "px", width }}
         onPointerDown={_start} onPointerMove={_move} onPointerUp={_end} onPointerCancel={_end}
-        // onMouseDown={_start} onMouseMove={_move} onMouseUp={_end} onMouseLeave={_end}
         onWheel={_wheel}
     >
-        <ul ref={scroller} class='wheelpicker-wheel-scroller overflow-hidden list-none m-0 p-0' style={{ transform: () => "translate3d(0," + y() + "px,0)", marginTop: $$(rowHeight) * Math.floor($$(rows) / 2) + "px" }}
+        <ul ref={scroller} class='wheelpicker-wheel-scroller overflow-hidden list-none m-0 p-0'
+            style={{
+                marginTop: $$(rowHeight) * Math.floor($$(rows) / 2) + "px"
+            }}
             onTransitionEnd={_transitionEnd} >
-            {list}
+            {$$(data).map((item, idx) => {
+                const id = nanoid()
+                let li = () => <li class={['wheelpicker-item',
+                    `cursor-pointer h-[34px] leading-[34px] overflow-hidden text-center text-ellipsis whitespace-nowrap`,
+                    () => $$(disabler(item)) ? "wheelpicker-item-disabled cursor-not-allowed pointer-events-none opacity-50" : '',
+                    () => idx === $$(selectedIndex) ? "wheelpicker-item-selected cursor-default" : '',
+                ]}
+                    //@ts-ignore
+                    _wsidx={idx}>
+                    {() => $$(checkbox) ? <div class='w-[100px] mx-0 my-auto inline-block cursor-pointer'
+                        onClick={() => checkboxer(item)?.(!$$(checkboxer(item)))}>
+                        <input id={id} class='float-left translate-y-[90%]  cursor-pointer' type='checkbox' checked={checkboxer(item)} indeterminate={() => typeof $$(checkboxer(item)) === 'undefined'} />
+                        <label for={id} onClick={() => checkboxer(item)?.(!$$(checkboxer(item)))}><span class='ml-4  cursor-pointer'>{renderer(item)}</span></label>
+                    </div> :
+                        renderer(item)
+                    }
+                </li >
+                return li
+            }
+            )}
         </ul>
     </div>
 }

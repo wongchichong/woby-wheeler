@@ -1,10 +1,9 @@
 "use strict"
 
-import { Data, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, } from './Data'
+import { Data } from './Data'
 
 import { Wheel } from './Wheel'
-import React, { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, useSuspended, Fragment, type JSX } from 'woby'
-import { useWindowSize } from 'use-woby'
+import React, { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, type JSX } from 'woby'
 import { useViewportSize } from 'use-woby'
 
 export type WheelerProps<A = never, B = never, C = never, D = never, E = never, F = never, G = never, H = never> = {
@@ -24,6 +23,8 @@ export type WheelerProps<A = never, B = never, C = never, D = never, E = never, 
     toolbar?: ObservableMaybe<boolean>
     noMask?: ObservableMaybe<boolean>
     commitOnOk?: ObservableMaybe<boolean>
+    changeValueOnClickOnly? : ObservableMaybe<boolean>
+    inputClicked? : Observable<boolean>
 }
 // & (Data1<A> |
 // Data2<A, B> |
@@ -60,6 +61,7 @@ export function Wheeler<A>(props: WheelerProps & Data<A>) {
         value: oValue, title, hideOnBlur, commitOnBlur, resetSelectedOnDataChanged,
         ok = "OK"/* "取消" */, cancel = "Cancel",//"确定"
         headers, toolbar, noMask, valuer, renderer, checkboxer, checkbox, commitOnOk = $(false),
+        inputClicked, changeValueOnClickOnly,
         //@ts-ignore
         disabler
     } = props
@@ -73,13 +75,8 @@ export function Wheeler<A>(props: WheelerProps & Data<A>) {
     const oriValue = value.map(v => $$(v))
     const pdata = isObservable(data) ? data : $(data)
 
-    // useEffect(() => console.log(props, value))
-
     //only for data change
     useEffect(() => {
-        // if (!Array.isArray(value))
-        //     console.error('value must be array.')
-
         if (!Array.isArray($$(value)))
             console.error('value must be array.')
 
@@ -128,7 +125,6 @@ export function Wheeler<A>(props: WheelerProps & Data<A>) {
         }
     }
 
-    // useEffect(() => console.log($$(tempValue[1])))
     const _set = (silent?: boolean) => {
         cancelled(false)
         if (silent === true) return
@@ -191,6 +187,8 @@ export function Wheeler<A>(props: WheelerProps & Data<A>) {
         checkboxer={(checkboxer?.[i] ?? (r => null) as any)}
         checkbox={checkbox?.[i]}
         disabler={disabler?.[i] ?? (r => null) as any}
+        changeValueOnClickOnly={changeValueOnClickOnly}
+        inputClicked={inputClicked}
     />))
 
     const height = $$(rowHeight) * Math.floor($$(rows) / 2) - 1 + "px"
@@ -205,17 +203,12 @@ export function Wheeler<A>(props: WheelerProps & Data<A>) {
         }
     })
 
-    useEffect(() => console.log('headers', $$(headers)))
-
-    return () => !$$(open) ? null : <div ref={container} class="wheelpicker fixed w-full h-full hidden z-[77] left-0 top-0" style={s} onDblClick={() => _set()}>
+    return () => !$$(open) ? null : <div ref={container} class="wheelpicker fixed w-full h-full z-[77] left-0 top-0" style={s} onDblClick={() => _set()}>
         <div class={['wheelpicker-backdrop duration-[0.4s] h-full bg-[rgba(0,0,0,0.5)] opacity-0 [transform:translateZ(0)]', () => $$(open) ? 'opacity-100' : '']} onTransitionEnd={_backdropTransEnd} onClick={() => $$(hideOnBlur) ? ($$(commitOnBlur) ? _set() : _cancel()) : null}></div>
         <div class={['wheelpicker-panel duration-[0.4s] absolute w-full bg-[#F7F7F7] text-base text-black select-none left-0 bottom-0 ',
             () => $$(open) ? '[transform:none]' : '[transform:translateY(100%)]',
             'absolute w-full z-[1000] p-2.5 bottom-0'
         ]}
-            style={{
-                // transform: () => $$(shown) ? 'transform:none' : 'translate3d(0,100%,0)'
-            }}
         >
             {() => $$(toolbar) ?
                 <div class='wheelpicker-actions overflow-hidden border-b-[#C6C6C6] border-b border-solid'>
