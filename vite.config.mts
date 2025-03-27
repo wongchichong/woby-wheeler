@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 // import dts from 'vite-plugin-dts'
 // import { viteStaticCopy } from 'vite-plugin-static-copy'
@@ -39,6 +40,7 @@ const config = defineConfig({
         //         }
         //     ]
         // }),
+        tailwindcss(),
     ],
     resolve: {
         alias: {
