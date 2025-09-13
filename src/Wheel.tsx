@@ -33,7 +33,7 @@ export type WheelProps<T> = {
 
 export type ItemType = { classList: any }
 
-const isTouch = (e: TouchEvent | PointerEvent): e is TouchEvent => 'touches' in e;
+const isTouch = (e: TouchEvent | PointerEvent): e is TouchEvent => 'touches' in e
 
 export const Wheel = <T,>(props: WheelProps<T>) => {
     const {
@@ -81,15 +81,17 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
         }
     })
 
-    useEffect(() => {
+    const updateSelectedIndex = () => {
         const v = $$(value)
         const i = $$(data).findIndex((vv, i) => (valuer ? valuer(vv) : vv) === v)
 
         selectedIndex(i)
-    })
+    }
+    useEffect(updateSelectedIndex)
+
 
     //Changes value of the value observable to based on the selected index
-    useEffect(() => {
+    const updateSelected = () => {
         const dt = $$(data)
 
         y($$(selectedIndex) * -$$(rowHeight))
@@ -105,7 +107,12 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
             value(valuer && $$(_items)[$$(selectedIndex)] ? valuer($$(_items)[$$(selectedIndex)]) : $$(_items)[$$(selectedIndex)])
         }
 
-    })
+    }
+
+    useEffect(updateSelected)
+
+
+    useEffect(() => console.log('y', $$(y)))
 
     const _momentum = (current: number, start: number, time: number, lowerMargin: number, wheelSize: number, deceleration: number, rowHeight: number) => {
         let distance = current - start
@@ -144,7 +151,7 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
         if (yy > 0) yy = 0
         if (yy < $$(maxScrollY)) yy = $$(maxScrollY)
 
-        if (yy === $$(y)) return false
+        //if (yy === $$(y)) return false
 
         _scrollTo(yy, duration, $$(easings).bounce)
 
@@ -187,6 +194,8 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
             _scrollFinish()
         }
     }
+
+
 
     const _scrollFinish = () => {
         let newIndex = Math.abs($$(y) / $$(rowHeight))
@@ -324,6 +333,13 @@ export const Wheel = <T,>(props: WheelProps<T>) => {
 
         pwid = aid
     }
+
+
+
+    // updateSelectedIndex()
+    // updateSelected()
+
+    // _resetPosition(0)
 
     return <div ref={wheel} class='wheelpicker-wheel flex-[1_auto] relative overflow-hidden'
         style={{ height: $$(rowHeight) * $$(rows) + "px", width }}

@@ -1,4 +1,4 @@
-import * as React from "woby";
+import * as React from "woby"
 import { Wheeler } from "./src/Wheeler"
 import { $, $$, Observable, render, useMemo, useEffect, ObservableMaybe, isObservable, Portal, type JSX } from 'woby'
 import './dist/output.css'

@@ -1,4 +1,4 @@
-# Woby-Wheeler
+# @woby/Wheeler
 
 Ported from [WheelPicker](https://cople.github.io/WheelPicker/)
 
@@ -6,7 +6,7 @@ Ported from [WheelPicker](https://cople.github.io/WheelPicker/)
 
 ## 演示
 
-[DEMO](https://github.com/wongchichong/woby-wheeler)
+[DEMO](https://github.com/wobyjs/wheeler)
 
 ## Run Demo
 
@@ -18,7 +18,7 @@ pnpm dev
 
 ### NPM
 ```sh
-npm install woby-wheeler --save
+npm install @woby/wheeler --save
 ```
 
 ### CDN
@@ -29,7 +29,7 @@ npm install woby-wheeler --save
 ## 使用
 
 ```ts
-import { Wheeler } from "woby-wheeler"
+import { Wheeler } from '@woby/wheeler"
 import { $, $$, Observable, render, useMemo, useEffect, ObservableMaybe, isObservable, type JSX } from "woby"
 
 import data from './data.json'

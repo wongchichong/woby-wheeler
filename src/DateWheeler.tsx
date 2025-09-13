@@ -64,6 +64,8 @@ export const DateWheeler = (props?: DateWheelerProps) => {
 
     useEffect(() => { date($$(oDate)) })
 
+    useEffect(() => console.log($$(date), $$(oDate), $$(value[0]), $$(value[1]), $$(value[2])))
+
     useEffect(() => { (!$$(date) || isNaN(+$$(date))) && date(new Date()) })
         ; (!$$(date) || isNaN(+$$(date))) && date(new Date())
 
@@ -98,8 +100,8 @@ export const DateWheeler = (props?: DateWheelerProps) => {
         let i = 0
         /* hY && */ value[0](year)
         /* hM && */ value[1](Months[month])
-        /* hD && */ value[2](day);
-        /* (hH || hm || hS) && */ value[3](hour);
+        /* hD && */ value[2](day)
+        /* (hH || hm || hS) && */ value[3](hour)
         /* (hm || hS) && */ value[4](minute)
         /* hS &&  */value[5](second)
     })

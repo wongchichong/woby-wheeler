@@ -3,8 +3,8 @@
 import { Data } from './Data'
 
 import { Wheel } from './Wheel'
-import React, { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, type JSX } from 'woby'
-import { useViewportSize } from 'use-woby'
+import { $, $$, isObservable, ObservableMaybe, Observable, useEffect, useMemo, batch, type JSX } from 'woby'
+import { useViewportSize } from '@woby/use'
 
 export type WheelerProps<A = never, B = never, C = never, D = never, E = never, F = never, G = never, H = never> = {
     title?: ObservableMaybe<JSX.Child>
@@ -23,8 +23,8 @@ export type WheelerProps<A = never, B = never, C = never, D = never, E = never, 
     toolbar?: ObservableMaybe<boolean>
     noMask?: ObservableMaybe<boolean>
     commitOnOk?: ObservableMaybe<boolean>
-    changeValueOnClickOnly? : ObservableMaybe<boolean>
-    inputClicked? : Observable<boolean>
+    changeValueOnClickOnly?: ObservableMaybe<boolean>
+    inputClicked?: Observable<boolean>
 }
 // & (Data1<A> |
 // Data2<A, B> |

@@ -1,5 +1,5 @@
 {
   "projects": {
-    "default": "woby-wheeler"
+    "default": "@woby/wheeler"
   }
 }
