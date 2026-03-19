@@ -1,56 +1,67 @@
 {
-    "name": "@woby/wheeler",
-    "version": "1.1.11",
-    "description": "仿 iOS UIPickerView 的滚动选择器",
-    "main": "./dist/index.cjs.js",
-    "module": "./dist/index.es.js",
-    "browser": "./dist/index.umd.js",
-    "types": "./dist/types/index.d.ts",
-    "sass": "./dist/WheelPicker.scss",
-    "keywords": [
-        "UIPickerView",
-        "滚动选择"
-    ],
-    "scripts": {
-        "git": "git add . && git commit -m \"Bump version\" && git push",
-        "bump": "pnpm version patch",
-        "npmjs": "pnpm publish",
-        "release": "run-s -c git bump npmjs",
-        "css:watch": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
-        "css11": "tailwindcss -i ./src/input.css -o ./dist/output.css",
-        "declaration": "tsc --build --force --declaration --emitDeclarationOnly --declarationMap  --verbose",
-        "declaration:watch": "tsc --build --force --declaration --emitDeclarationOnly --declarationMap  --verbose --watch",
-        "watch": "run-p css build:watch css:watch",
-        "build": "run-s build:vite declaration",
-        "build:web": "vite build --config=vite.config.web.mts --mode production",
-        "web": "vite preview --config=vite.config.web.mts --host",
-        "dev:only": "vite --config=vite.config.web.mts --force --mode dev --host",
-        "dev": "run-p css:watch dev:only",
-        "build:vite": "vite build",
-        "build:watch": "vite build --watch",
-        "preview": "vite preview --host",
-        "icon": "node ./node_modules/svg2tsx/cli/index.js"
-    },
-    "author": "Cople",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/wobyjs/wheeler"
-    },
-    "homepage": "https://github.com/wobyjs/wheeler",
-    "peerDependencies": {
-        "nanoid": "^5.0.7",
-        "@woby/use": "workspace:../use",
-        "woby": "workspace:../woby"
-    },
-    "devDependencies": {
-        "nanoid": "^5.0.9",
-        "tailwindcss": "^4.0.17",
-        "@tailwindcss/vite": "^4.0.6",
-        "vite": "6.1.0",
-        "vite-plugin-static-copy": "^2.2.0"
-    },
-    "dependencies": {
-        "typescript": "5.7.3"
+  "name": "@woby/wheeler",
+  "version": "1.1.11",
+  "description": "仿 iOS UIPickerView 的滚动选择器",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.es.js",
+  "browser": "./dist/index.umd.js",
+  "types": "./dist/types/index.d.ts",
+  "sass": "./dist/WheelPicker.scss",
+  "keywords": [
+    "UIPickerView",
+    "滚动选择"
+  ],
+  "scripts": {
+    "git": "git add . && git commit -m \"Bump version\" && git push",
+    "bump": "pnpm version patch",
+    "npmjs": "pnpm publish",
+    "release": "run-s -c git bump npmjs",
+    "css:watch": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
+    "css11": "tailwindcss -i ./src/input.css -o ./dist/output.css",
+    "declaration": "tsc --build --force --declaration --emitDeclarationOnly --declarationMap  --verbose",
+    "declaration:watch": "tsc --build --force --declaration --emitDeclarationOnly --declarationMap  --verbose --watch",
+    "watch": "run-p css build:watch css:watch",
+    "build": "run-s build:vite declaration",
+    "build:web": "vite build --config=vite.config.web.mts --mode production",
+    "web": "vite preview --config=vite.config.web.mts --host",
+    "dev:only": "vite --config=vite.config.web.mts --force --mode dev --host",
+    "dev": "run-p css:watch dev:only",
+    "build:vite": "vite build",
+    "build:watch": "vite build --watch",
+    "preview": "vite preview --host",
+    "icon": "node ./node_modules/svg2tsx/cli/index.js",
+    "commit": "cz",
+    "changelog": "git-cliff -o CHANGELOG.md",
+    "release:automatic": "semantic-release --extends ../semantic-release.config.js",
+    "commit:help": "echo 'Usage: pnpm run commit' && echo 'This will start the commitizen wizard to create a conventional commit.' && echo 'Follow the prompts to enter commit type, scope, and message.'"
+  },
+  "author": "Cople",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wobyjs/wheeler"
+  },
+  "homepage": "https://github.com/wobyjs/wheeler",
+  "peerDependencies": {
+    "nanoid": "^5.0.7",
+    "@woby/use": "workspace:../use",
+    "woby": "workspace:../woby"
+  },
+  "devDependencies": {
+    "nanoid": "^5.0.9",
+    "tailwindcss": "^4.0.17",
+    "@tailwindcss/vite": "^4.0.6",
+    "vite": "6.1.0",
+    "vite-plugin-static-copy": "^2.2.0"
+  },
+  "dependencies": {
+    "typescript": "5.7.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "woby": "workspace:../woby",
+      "@woby/styled": "workspace:../styled",
+      "@woby/use": "workspace:../use"
     }
+  }
 }
