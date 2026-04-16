@@ -15,7 +15,7 @@ const config = defineConfig({
         },
         sourcemap: true,
         rollupOptions: {
-            external: ['woby', 'woby/jsx-runtime', 'oby', '@woby/use', 'nanoid'],
+            external: ['woby', 'woby/jsx-runtime', 'oby', /^@woby\/(.*)/, 'nanoid'],
             output: {
                 globals: {
                     '@woby/use': '@woby/use',

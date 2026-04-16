@@ -203,7 +203,7 @@ export function Wheeler<A>(props: WheelerProps & Data<A>) {
         }
     })
 
-    return () => !$$(open) ? null : <div ref={container} class="wheelpicker fixed w-full h-full z-[77] left-0 top-0" style={s} onDblClick={() => _set()}>
+    return () => !$$(open) ? null : <div ref={container} class="wheelpicker fixed w-full h-full z-[77] left-0 top-0" onDblClick={() => _set()}>
         <div class={['wheelpicker-backdrop duration-[0.4s] h-full bg-[rgba(0,0,0,0.5)] opacity-0 [transform:translateZ(0)]', () => $$(open) ? 'opacity-100' : '']} onTransitionEnd={_backdropTransEnd} onClick={() => $$(hideOnBlur) ? ($$(commitOnBlur) ? _set() : _cancel()) : null}></div>
         <div class={['wheelpicker-panel duration-[0.4s] absolute w-full bg-[#F7F7F7] text-base text-black select-none left-0 bottom-0 ',
             () => $$(open) ? '[transform:none]' : '[transform:translateY(100%)]',
